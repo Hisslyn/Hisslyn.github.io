@@ -1,0 +1,65 @@
+/project-root
+├── /assets
+│   ├── /fonts
+│   ├── /images
+│   │   ├── /logos
+│   │   ├── /icons
+│   │   └── /photos
+│   ├── /videos
+│   └── /audio
+├── /components
+│   ├── /header
+│   │   ├── header.html
+│   │   ├── header.css
+│   │   └── header.js
+│   ├── /footer
+│   │   ├── footer.html
+│   │   ├── footer.css
+│   │   └── footer.js
+│   └── /navbar
+│       ├── navbar.html
+│       ├── navbar.css
+│       └── navbar.js
+├── /dist
+│   ├── index.html
+│   ├── /css
+│   │   └── styles.min.css
+│   ├── /js
+│   │   └── scripts.min.js
+│   └── /assets
+│       ├── /images
+│       └── /fonts
+├── /public
+│   ├── favicon.ico
+│   ├── robots.txt
+│   └── sitemap.xml
+├── /src
+│   ├── /css
+│   │   ├── styles.css
+│   │   └── reset.css
+│   ├── /js
+│   │   ├── main.js
+│   │   ├── api.js
+│   │   └── utils.js
+│   ├── /pages
+│   │   ├── index.html
+│   │   ├── about.html
+│   │   └── contact.html
+│   ├── /partials
+│   │   ├── header.html
+│   │   ├── footer.html
+│   │   └── navbar.html
+│   ├── /scss
+│   │   ├── main.scss
+│   │   ├── variables.scss
+│   │   └── mixins.scss
+│   └── index.html
+├── /tests
+│   ├── /unit
+│   │   └── component.test.js
+│   └── /integration
+│       └── user-flow.test.js
+├── .gitignore
+├── package.json
+├── README.md
+├── .env
