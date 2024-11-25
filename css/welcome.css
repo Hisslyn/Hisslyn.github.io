@@ -1,0 +1,64 @@
+/* Welcome Page Styles */
+
+/* General Reset */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(to right, #007bff, #0056b3);
+    color: #fff;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Welcome Container */
+.welcome-container {
+    text-align: center;
+}
+
+.welcome-container h1 {
+    font-size: 3em;
+    margin-bottom: 20px;
+}
+
+.welcome-container p {
+    font-size: 1.5em;
+    margin-bottom: 30px;
+}
+
+/* Button Styling */
+.welcome-container .btn {
+    display: inline-block;
+    padding: 15px 30px;
+    font-size: 1.2em;
+    color: #007bff;
+    background: #fff;
+    text-decoration: none;
+    border-radius: 5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    transition: background 0.3s, color 0.3s;
+}
+
+.welcome-container .btn:hover {
+    background: #0056b3;
+    color: #fff;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Apply the animation to the welcome container */
+.welcome-container {
+    animation: fadeIn 1.5s ease-in-out;
+}
