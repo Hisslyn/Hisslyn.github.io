@@ -4,27 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Riot Project</title>
-    <link rel="stylesheet" href="css/welcome.css"> <!-- Link to Welcome Page CSS -->
+    <link rel="stylesheet" href="css/styles.css"> <!-- Link to Welcome Page CSS -->
+    <link rel="stylesheet" href="css/riotproject.css"> <!-- New CSS for Riot Project -->
 </head>
 
 <body>
+    <div class="logo-container">
+        <img src="src/assets/logo.jpg" alt="Logo" class="logo">
+    </div>
     <header class="dark-header">
         <nav>
           <ul class="nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="cv.html">CV</a></li>
-            <li><a href="todobutton.html">To do button</a></li>
             <li><a href="merch.html">Merch</a></li>
             <li><a href="riotproject.html" class="active">Riot Project</a></li>
-            <li><a href="#merch">Projects</a></li>
+            <li><a href="projects.html">Projects</a></li>
             <li><a href="contactme.html">Contact Me</a></li>
           </ul>
         </nav>
-      </header>
-    <div class="welcome-container">
+    </header>
+    <main>
         <h1>Riot Project</h1>
-        <p>Your journey to discover more about me starts here.</p>
-    </div>
-    <script src="js/welcome.js"></script> 
+        <p><label for="username">Enter Your Name and tag:</label></p>
+        <input type="text" id="username" name="username" placeholder="Summoner Name + #Tag">
+        <input type="text" id="username" name="username" placeholder="Summoner Name + #Tag">
+
+        <button onclick="submitInput()" >Submit</button>
+
+    </main>
+    <script src="js/riotproject.js"></script> <!-- New JavaScript for Riot Project -->
 </body>
 </html>

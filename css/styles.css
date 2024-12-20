@@ -1,11 +1,9 @@
 :root {
-  /* Color Palette */
   --background-dark: #081c15;
-  --neon-green: #52b788;
-  --text-muted: #b7e4c7;
+  --neon-green: #18b96e;
+  --text-muted: #7aab8b;
   --border-light: #2d6a4f;
-
-  /* Fonts */
+  --background-color: #1b4332;
   --font-code: 'Fira Code', monospace;
   --font-sans: 'Roboto', sans-serif;
 }
@@ -18,7 +16,6 @@ body {
   padding: 0;
 }
 
-/* Header Styling */
 header {
   background-color: var(--background-dark);
   border-bottom: 1px solid var(--border-light);
@@ -32,7 +29,6 @@ h1, h2, h3 {
   text-shadow: 0 0 10px var(--neon-green);
 }
 
-/* Links */
 a {
   color: var(--neon-green);
   text-decoration: none;
@@ -42,14 +38,13 @@ a:hover {
   text-shadow: 0 0 8px var(--neon-green);
 }
 
-/* Buttons */
-button {
+button, input[type="text"] {
   font-family: var(--font-code);
   color: var(--neon-green);
-  background: none;
+  background: var(--background-dark);
   border: 2px solid var(--neon-green);
   border-radius: 5px;
-  padding: 10px 20px;
+  padding: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -57,10 +52,27 @@ button {
 button:hover {
   background-color: var(--neon-green);
   color: var(--background-dark);
-  text-shadow: none;
+  outline: none;
+  box-shadow: 0 0 8px var(--neon-green);
 }
 
-/* Typing Effect */
+input[type="text"]:focus {
+  color: var(--text-muted);
+  outline: none;
+  box-shadow: 0 0 8px var(--neon-green);
+}
+
+input[type="text"] {
+  background-color: var(--background-dark);
+  text-align: center;
+  width: 300px;
+}
+
+input[type="text"]::placeholder {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .typing {
   font-family: var(--font-code);
   color: var(--neon-green);
@@ -80,19 +92,29 @@ button:hover {
   to { border-right-color: transparent; }
 }
 
-/* Header Section */
-.dark-header {
-    background-color: #081c15; /* Darker background */
-    color: var(--text-muted);
-    padding: 20px;
-    text-align: center;
-    border-bottom: 1px solid var(--border-light);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+.logo-container {
+  position: absolute;
+  top: 9px;
+  left: 10px;
 }
-  
-  /* Navigation Links */
+
+.logo {
+  width: 100px; 
+  height: 100px; 
+  border-radius: 50%; 
+  object-fit: cover; 
+}
+
+.dark-header {
+  background-color: var(--background-dark);
+  color: var(--text-muted);
+  padding: 20px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-light);
+  top: 0;
+  z-index: 10;
+}
+
 .nav-links {
   list-style: none;
   margin: 0;
@@ -112,21 +134,16 @@ button:hover {
   transition: background-color 0.3s, color 0.3s;
 }
 
-.nav-links a:hover {
+.nav-links a:hover, .nav-links a.active {
   background-color: var(--neon-green);
   color: var(--background-dark);
 }
 
-.nav-links a.active {
-  background-color: var(--neon-green);
-  color: var(--background-dark);
-}
-
-/* Main Section */
 main {
-  background-color: #1b4332; /* Slightly lighter green */
+  background-color: var(--background-color);
   color: var(--text-muted);
   padding: 40px 20px;
+  text-align: center;
 }
 
 main h1 {
