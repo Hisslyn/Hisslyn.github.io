@@ -10,12 +10,13 @@
 
 <body>
     <div class="logo-container">
-        <img src="src/assets/logo.jpg" alt="Logo" class="logo">
+        <a href="index.html">
+            <img src="src/assets/logo.jpg" alt="Logo" class="logo">
+        </a>
     </div>
     <header class="dark-header">
         <nav>
           <ul class="nav-links">
-            <li><a href="index.html">Home</a></li>
             <li><a href="cv.html">CV</a></li>
             <li><a href="merch.html">Merch</a></li>
             <li><a href="riotproject.html" class="active">Riot Project</a></li>
@@ -27,11 +28,16 @@
     <main>
         <h1>Riot Project</h1>
         <p><label for="username">Enter Your Name and tag:</label></p>
+        <form>
+            <select class="styled-dropdown">
+              <option value="" disabled selected>Region</option>
+              <option value="option1">EUNE</option>
+              <option value="option2">EUW</option>
+              <option value="option3">NA</option>
+            </select>                
         <input type="text" id="username" name="username" placeholder="Summoner Name + #Tag">
-        <input type="text" id="username" name="username" placeholder="Summoner Name + #Tag">
-
         <button onclick="submitInput()" >Submit</button>
-
+        </form>  
     </main>
     <script src="js/riotproject.js"></script> <!-- New JavaScript for Riot Project -->
 </body>
