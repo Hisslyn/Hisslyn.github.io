@@ -1,0 +1,113 @@
+/* translate.css */
+
+/* General Styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f7f7f7;
+  margin: 0;
+  padding: 20px;
+  color: #333;
+}
+
+h1 {
+  text-align: center;
+  color: #2c3e50;
+}
+
+p {
+  text-align: center;
+  font-size: 1.1rem;
+  margin-bottom: 30px;
+}
+
+/* Request Block */
+.request-block {
+  background-color: #fff;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-left: 4px solid #3498db;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.request-block label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  color: #555;
+}
+
+.request-block select,
+.request-block textarea,
+.request-block input[type="file"] {
+  width: 100%;
+  margin-top: 5px;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.request-block textarea {
+  resize: vertical;
+}
+
+/* Buttons */
+button {
+  display: inline-block;
+  margin: 10px 5px;
+  padding: 10px 20px;
+  font-size: 1rem;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+button:hover {
+  background-color: #2980b9;
+}
+
+button:active {
+  background-color: #2471a3;
+}
+
+/* Button Container */
+.request-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+/* Round Buttons */
+.request-buttons button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background-color: #3498db;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.request-buttons button:hover {
+  background-color: #2980b9;
+}
+
+.request-buttons button:active {
+  background-color: #2471a3;
+}
+
+#total-price {
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-align: right;
+  margin-top: 20px;
+  color: #2c3e50;
+}
