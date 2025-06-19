@@ -1,0 +1,9 @@
+{
+  "pageTitle": "Translation Services",
+  "pageDescription": "Select a service and describe your request below.",
+  "labelService": "Choose a translation service:",
+  "labelDescription": "Please describe what you want:",
+  "labelUpload": "Upload a file:",
+  "submitButton": "Submit",
+  "totalPrice": "Your total price is: $"
+}

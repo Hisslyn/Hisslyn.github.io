@@ -108,3 +108,37 @@ button:active {
   margin-top: 20px;
   color: #2c3e50;
 }
+
+.lang-switch {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.lang-switch button {
+  font-size: 1.5rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.lang-switch {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.lang-icon {
+  width: 32px;
+  height: 20px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  transition: border 0.2s;
+}
+
+.lang-icon:hover {
+  border: 2px solid #3498db;
+}
