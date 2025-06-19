@@ -1,14 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
-    <link rel="stylesheet" href="css/translate.css"> <!-- Link to Welcome Page CSS -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Translation Services</title>
+  <link rel="stylesheet" href="css/translate.css" />
 </head>
 
 <body>
-  <h1>Translation!</h1>
-  <p>Your journey to discover more about me starts here.</p>
+  <h1>Translation Services</h1>
+  <p>Select a service and describe your request below.</p>
+
+  <div id="requests-container">
+    <div class="request-block">
+      <div class="request-buttons">
+        <button type="button" class="add-btn" onclick="addRequest(this)">+</button>
+      </div>
+
+      <label>Choose a translation service:</label>
+      <select name="service" onchange="updateTotal()">
+        <option value="document">Document Translation – $1</option>
+        <option value="website">Website Translation – $2</option>
+        <option value="subtitles">Subtitle Translation – $3</option>
+        <option value="certified">Certified Translation – $5</option>
+        <option value="interpretation">Live Interpretation – $10</option>
+        <option value="other">Other</option>
+      </select>
+
+      <label>Please describe what you want:</label>
+      <textarea name="description" rows="4" cols="50"></textarea>
+
+      <label>Upload a file:</label>
+      <input type="file" name="file" />
+    </div>
+  </div>
+
+  <button type="submit" href="submitted_translate.html">Submit</button>
+
+ <script>
+  const prices = {
+    document: 1,
+    website: 2,
+    subtitles: 3,
+    certified: 5,
+    interpretation: 10,
+    other: 0
+  };
+
+  function updateTotal() {
+    const selects = document.querySelectorAll('select[name="service"]');
+    let total = 0;
+    selects.forEach(select => {
+      const val = select.value;
+      total += prices[val] || 0;
+    });
+    document.getElementById('total-price').textContent = `Your total price is: $${total}`;
+  }
+
+  function addRequest(button) {
+    const container = document.getElementById('requests-container');
+    const block = document.querySelector('.request-block');
+    const clone = block.cloneNode(true);
+
+    // Clear values
+    clone.querySelector('textarea').value = '';
+    clone.querySelector('input[type="file"]').value = '';
+
+    // Update select onchange event
+    const select = clone.querySelector('select');
+    select.addEventListener('change', updateTotal);
+    select.selectedIndex = 0;
+
+    // Add buttons
+    const btnContainer = clone.querySelector('.request-buttons');
+    btnContainer.innerHTML = `
+      <button type="button" class="add-btn" onclick="addRequest(this)">+</button>
+      <button type="button" class="remove-btn" onclick="removeRequest(this)">−</button>
+    `;
+
+    container.appendChild(clone);
+    updateTotal();
+  }
+
+  function removeRequest(button) {
+    const block = button.closest('.request-block');
+    block.remove();
+    updateTotal();
+  }
+
+  // On page load, hook the first select
+  window.onload = function () {
+    const firstSelect = document.querySelector('select[name="service"]');
+    firstSelect.addEventListener('change', updateTotal);
+  };
+</script>
+
+  <p id="total-price">Your total price is: $0</p>
+
 </body>
+
 </html>
