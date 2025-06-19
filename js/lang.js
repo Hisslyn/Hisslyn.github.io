@@ -69,3 +69,10 @@ window.onload = () => {
   setLanguage('en');
   document.querySelector('select[name="service"]').addEventListener('change', updateTotal);
 };
+
+function redirectSubmit() {
+  // You can add validation here if needed
+
+  // Redirect to the new page
+  window.location.href = "submitted-translate.html";
+}

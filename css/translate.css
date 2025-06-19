@@ -1,9 +1,11 @@
 body {
+  /* Soft blue to off-white vertical gradient */
+  background: linear-gradient(to bottom, #a8dadc, #f0f4f8);
+  color: #000; /* black text */
   font-family: Arial, sans-serif;
-  background-color: #f7f7f7;
   margin: 0;
   padding: 20px;
-  color: #333;
+  min-height: 100vh;
 }
 
 h1 {
