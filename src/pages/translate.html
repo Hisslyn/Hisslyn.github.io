@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; form-action https://formspree.io">
+  <title>Translation Services</title>
+  <link rel="stylesheet" href="../css/components/translate.min.css" />
+  <script defer src="../js/lang.min.js"></script>
+</head>
+
+<body>
+  <div class="lang-switch">
+  <img src="../../assets/icons/gb.png" alt="English" data-lang="en" class="lang-icon" width="32" height="20" />
+  <img src="../../assets/icons/ru.png" alt="Русский" data-lang="ru" class="lang-icon" width="32" height="20" />
+  <img src="../../assets/icons/am.png" alt="Հայերեն" data-lang="hy" class="lang-icon" width="32" height="20" />
+</div>
+
+  <h1 id="page-title">Translation Services</h1>
+  <p id="page-description">Select a service and describe your request below.</p>
+
+  <form id="request-form" action="https://formspree.io/f/mwpkndan" method="POST">
+    <input type="hidden" name="_next" value="https://hisslyn.github.io/src/pages/submitted-translate.html">
+
+    <div id="requests-container">
+      <div class="request-block">
+        <div class="request-buttons">
+          <button type="button" class="add-btn">+</button>
+        </div>
+
+        <label id="label-service">Choose a translation service:</label>
+        <select name="service">
+          <option value="document">Document Translation – $1</option>
+          <option value="website">Website Translation – $2</option>
+          <option value="subtitles">Subtitle Translation – $3</option>
+          <option value="certified">Certified Translation – $5</option>
+          <option value="interpretation">Live Interpretation – $10</option>
+          <option value="other">Other</option>
+        </select>
+
+        <label id="label-description">Please describe what you want:</label>
+        <textarea name="description" rows="4" cols="50"></textarea>
+      </div>
+    </div>
+
+    <button type="button" id="submit-button">Submit</button>
+    <p id="total-price">Your total price is: $0</p>
+  </form>
+</body>
+</html>

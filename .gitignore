@@ -1,2 +1,11 @@
 # .gitignore
+.DS_Store
+node_modules/
 .env
+scripts/
+perfect_folder_looks.txt
+src/css/styles.css
+src/css/fonts.css
+src/css/fonts.min.css
+src/css/components/translate.css
+src/js/lang.js
