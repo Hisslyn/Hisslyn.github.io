@@ -3,13 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riot Project</title>
+    <title>Riot Project | Azat Yeranosyan</title>
     <meta name="description" content="Look up League of Legends summoner stats by region.">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
     <link rel="stylesheet" href="../css/styles.min.css">
 </head>
-
 <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
     <header class="dark-header">
@@ -18,8 +17,9 @@
                 <img src="../../assets/images/logo.webp" alt="Azat Yeranosyan – home" class="logo" width="100" height="100">
             </a>
         </div>
-        <nav>
+        <nav aria-label="Main navigation">
             <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
                 <li><a href="cv.html">CV</a></li>
                 <li><a href="merch.html">Merch</a></li>
                 <li><a href="riotproject.html" class="active">Riot Project</a></li>
@@ -29,43 +29,45 @@
         </nav>
     </header>
     <main id="main-content">
-        <h1>Riot Project</h1>
-        <form action="#" method="get">
-          <fieldset>
-            <legend class="visually-hidden">Summoner Lookup</legend>
-            <div class="form-group">
-              <label for="region">Region:</label>
-              <select id="region" name="region" class="styled-dropdown" required>
-                <option value="" disabled selected>Region</option>
-                <option value="NA1">NA1</option>
-                <option value="ME1">ME1</option>
-                <option value="EUW1">EUW</option>
-                <option value="EUN1">EUNE</option>
-                <option value="OC1">OCE</option>
-                <option value="KR1">KR1</option>
-                <option value="JP1">JP1</option>
-                <option value="BR1">BR1</option>
-                <option value="LA2">LAS</option>
-                <option value="LA1">LAN</option>
-                <option value="RU">RU1</option>
-                <option value="TR1">TR1</option>
-                <option value="SG2">SG2</option>
-                <option value="PH2">PH2</option>
-                <option value="TW2">TW2</option>
-                <option value="VN2">VN2</option>
-                <option value="TH2">TH2</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="username">Summoner Name + #Tag:</label>
-              <input type="text" id="username" name="username" placeholder="Summoner Name + #Tag" required>
-            </div>
-            <button type="submit" class="dark-theme-button">Submit</button>
-          </fieldset>
-        </form>
+        <section id="summoner-lookup">
+            <h1>Riot Project</h1>
+            <form action="#" method="get">
+                <fieldset>
+                    <legend class="visually-hidden">Summoner Lookup</legend>
+                    <div class="form-group">
+                        <label for="region">Region:</label>
+                        <select id="region" name="region" class="styled-dropdown" required>
+                            <option value="" disabled selected>Region</option>
+                            <option value="NA1">NA1</option>
+                            <option value="ME1">ME1</option>
+                            <option value="EUW1">EUW</option>
+                            <option value="EUN1">EUNE</option>
+                            <option value="OC1">OCE</option>
+                            <option value="KR">KR</option>
+                            <option value="JP1">JP1</option>
+                            <option value="BR1">BR1</option>
+                            <option value="LA2">LAS</option>
+                            <option value="LA1">LAN</option>
+                            <option value="RU">RU</option>
+                            <option value="TR1">TR1</option>
+                            <option value="SG2">SG2</option>
+                            <option value="PH2">PH2</option>
+                            <option value="TW2">TW2</option>
+                            <option value="VN2">VN2</option>
+                            <option value="TH2">TH2</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Summoner Name + #Tag:</label>
+                        <input type="text" id="username" name="username" placeholder="Summoner Name + #Tag" required>
+                    </div>
+                    <button type="submit" class="dark-theme-button">Submit</button>
+                </fieldset>
+            </form>
+        </section>
     </main>
     <footer>
-        <p>© 2025 Azat Yeranosyan | Built with HTML &amp; CSS</p>
+        <p>© 2026 Azat Yeranosyan | Built with HTML &amp; CSS</p>
     </footer>
 </body>
 </html>
