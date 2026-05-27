@@ -3,7 +3,6 @@
   "pageDescription": "Выберите услугу и опишите ваш запрос ниже.",
   "labelService": "Выберите услугу перевода:",
   "labelDescription": "Опишите, что вы хотите:",
-  "labelUpload": "Загрузите файл:",
   "submitButton": "Отправить",
   "totalPrice": "Ваша общая цена: $"
 }
