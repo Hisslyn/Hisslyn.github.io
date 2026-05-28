@@ -4,5 +4,6 @@
   "labelService": "Choose a translation service:",
   "labelDescription": "Please describe what you want:",
   "submitButton": "Submit",
-  "totalPrice": "Your total price is: $"
+  "totalPrice": "Your total price is: $",
+  "validationError": "Please describe at least one request."
 }
