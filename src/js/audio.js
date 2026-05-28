@@ -110,10 +110,10 @@
     targetVolume = next;
     localStorage.setItem('bgAudioVolume', String(next));
     applyVolumeUI(next);
-    if (!audio.muted && !audio.paused) {
-      audio.volume = Math.min(audio.volume, next);
-    } else if (!audio.muted) {
-      audio.volume = next;
+    // If a fade ramp is running, it already reads targetVolume each frame — just let it converge.
+    // If no fade is running and audio is playing, apply immediately so the change is audible now.
+    if (fadeRaf === null && !audio.paused && !audio.muted) {
+      audio.volume = Math.max(0, Math.min(1, next));
     }
   }
 
