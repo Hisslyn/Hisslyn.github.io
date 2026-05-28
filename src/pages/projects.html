@@ -31,7 +31,35 @@
     <main id="main-content">
         <section id="projects">
             <h1>List of my Projects</h1>
-            <p>Yup.</p>
+            <div class="projects-grid">
+                <article class="project-card">
+                    <a href="https://github.com/Hisslyn/chess_predictor" class="project-card__link" aria-label="Open Chess Strategy Recommender demo">
+                        <img src="../../assets/images/chess-ml.jpg"
+                            alt="Chess Strategy Recommender preview"
+                            width="600" height="338">
+                        <div class="project-card__body">
+                            <h3>Chess Strategy Recommender</h3>
+                            <p class="project-card__meta">Machine Learning · XGBoost · Python</p>
+                            <p>Recommends per-round strategy (aggressive / solid / passive) in Swiss chess tournaments by predicting performance rating from game context. Trained on 37k games across 150 FIDE tournaments. Beats the Elo-only baseline by 50 MAE points.</p>
+                            <span class="project-card__cta">View demo →</span>
+                        </div>
+                    </a>
+                </article>
+                <article class="project-card">
+                  <a href="https://github.com/Hisslyn/ML-group-project" class="project-card__link" aria-label="Open Heart Disease Classification demo">
+                    <img src="../../assets/images/heart.png"
+                         alt="Heart Disease Classification preview"
+                         width="600" height="338">
+                    <div class="project-card__body">
+                        <h3>Heart Disease Classification</h3>
+                        <p class="project-card__meta">Machine Learning · Python · NumPy</p>
+                        <p>Seven classifiers built from scratch (kNN, Naive Bayes, linear, logistic, LDA, QDA, decision tree) on the UCI Heart Disease dataset of 920 patients across four hospitals. Stratified evaluation, 5-fold cross-validation, and a fully interpretable decision tree as the headline model.</p>
+                        <span class="project-card__cta">View demo →</span>
+                    </div>
+                  </a>
+                </article>
+                <div class="project-card project-card--placeholder" aria-hidden="true" role="presentation"></div>
+            </div>
         </section>
     </main>
     <footer>
