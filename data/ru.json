@@ -4,5 +4,6 @@
   "labelService": "Выберите услугу перевода:",
   "labelDescription": "Опишите, что вы хотите:",
   "submitButton": "Отправить",
-  "totalPrice": "Ваша общая цена: $"
+  "totalPrice": "Ваша общая цена: $",
+  "validationError": "Пожалуйста, опишите хотя бы один запрос."
 }
