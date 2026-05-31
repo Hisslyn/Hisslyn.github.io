@@ -20,20 +20,21 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 /
 ├── index.html                    # Root redirect shim (GitHub Pages entry point)
 ├── assets/
-│   ├── audio/                    # Background music MP3s
-│   │   ├── Cosmic_Hippo_lavender.mp3  # Active track (used by all pages)
-│   │   ├── Cosmic_Hippo_Plum.mp3      # Alternate track (not yet wired up)
-│   │   └── Cosmic_Hippo_mauve.mp3     # Alternate track (not yet wired up)
+│   ├── audio/                    # Background music MP3s (all three are in tracks.json playlist)
+│   │   ├── Cosmic_Hippo_lavender.mp3  # Track index 0 (default first track)
+│   │   ├── Cosmic_Hippo_mauve.mp3     # Track index 1
+│   │   └── Cosmic_Hippo_Plum.mp3     # Track index 2
 │   ├── fonts/                    # Self-hosted Fira Code + Roboto woff2 files
 │   ├── icons/                    # Flag PNGs: gb.png, ru.png, am.png
 │   │   └── tech/                 # (empty — reserved for tech stack icons)
-│   └── images/                   # logo.webp, chess-ml.jpg, heart.png
+│   └── images/                   # logo.webp, chess-ml.jpg, heart.png, Hire_me.gif, drawer-promo.webp
 │       ├── projects/             # (empty — reserved for project screenshots)
 │       └── backgrounds/          # (empty — reserved for background images)
 ├── data/
 │   ├── en.json                   # English i18n strings for translate.html
 │   ├── ru.json                   # Russian
-│   └── hy.json                   # Armenian
+│   ├── hy.json                   # Armenian
+│   └── tracks.json               # Ordered playlist array of audio filenames for audio.js
 ├── src/
 │   ├── pages/                    # All HTML pages (served from here)
 │   │   ├── index.html
@@ -43,22 +44,32 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 │   │   ├── riotproject.html
 │   │   ├── translate.html        # Has its own CSS + JS (standalone page)
 │   │   ├── submitted-translate.html
-│   │   └── contactme.html
+│   │   ├── contactme.html
+│   │   └── secret.html           # Easter egg page with client-side password gate
 │   ├── css/
 │   │   ├── fonts.css             # @font-face declarations only
+│   │   ├── fonts.min.css         # Minified fonts.css (artifact, not referenced by pages)
 │   │   ├── styles.css            # Main stylesheet (source)
 │   │   ├── styles.min.css        # Built: fonts.css + styles.css minified together
 │   │   └── components/
 │   │       ├── translate.css     # Standalone styles for translate.html (source)
 │   │       └── translate.min.css # Built: translate.css minified
 │   └── js/
-│       ├── lang.js               # Source JS for translate.html
+│       ├── lang.js               # Source JS for translate.html i18n + dynamic request blocks
 │       ├── lang.min.js           # Built: lang.js minified
-│       ├── audio.js              # Source JS for background audio toggle
-│       └── audio.min.js          # Built: audio.js minified
+│       ├── audio.js              # Source JS for background audio cluster (mute, volume, next track)
+│       ├── audio.min.js          # Built: audio.js minified
+│       ├── drawer.js             # Source JS for bottom-left promo drawer (open/close, localStorage)
+│       ├── drawer.min.js         # Built: drawer.js minified
+│       ├── secret.js             # Source JS for secret page client-side password check
+│       └── secret.min.js         # Built: secret.js minified
 ├── package.json                  # Build scripts only (clean-css-cli + terser)
-└── scripts/
-    └── data_collector.py         # Utility script (not part of the site)
+├── scripts/
+│   └── data_collector.py         # Utility script (not part of the site)
+└── side kick/                    # Standalone experimental prototype — NOT part of the served site
+    ├── index.html                # Three.js solar-system navigation concept ("NEXUS")
+    ├── nexus.css                 # Styles for the prototype (dark space theme, custom cursor, Syne font)
+    └── nexus.js                  # Three.js scene: particle cloud, animated sun, orbiting planets, warp navigation
 ```
 
 ---
@@ -71,11 +82,13 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 npm run build
 ```
 
-This runs two scripts (`minify:css` then `minify:js`) which expand to:
+This runs two scripts (`minify:css` then `minify:js`) which expand to exactly these 6 commands:
 1. `cleancss -o src/css/styles.min.css src/css/fonts.css src/css/styles.css`
 2. `cleancss -o src/css/components/translate.min.css src/css/components/translate.css`
 3. `terser src/js/lang.js -o src/js/lang.min.js -c -m`
 4. `terser src/js/audio.js -o src/js/audio.min.js -c -m`
+5. `terser src/js/drawer.js -o src/js/drawer.min.js -c -m`
+6. `terser src/js/secret.js -o src/js/secret.min.js -c -m`
 
 Pages load `.min.css` and `.min.js` — never the source files directly. Editing source without rebuilding has no visible effect.
 
@@ -85,14 +98,15 @@ Pages load `.min.css` and `.min.js` — never the source files directly. Editing
 
 | Page | CSS used | JS used | Form backend |
 |------|----------|---------|--------------|
-| index.html | styles.min.css | audio.min.js | — |
-| cv.html | styles.min.css | audio.min.js | — |
-| merch.html | styles.min.css | audio.min.js | — |
-| projects.html | styles.min.css | audio.min.js | — |
-| riotproject.html | styles.min.css | audio.min.js | form action="#" (placeholder) |
-| contactme.html | styles.min.css | audio.min.js | Formspree `mwpkndan` |
-| translate.html | components/translate.min.css | lang.min.js + audio.min.js | Formspree `mwpkndan` |
-| submitted-translate.html | components/translate.min.css | audio.min.js | — |
+| index.html | styles.min.css | audio.min.js + drawer.min.js | — |
+| cv.html | styles.min.css | audio.min.js + drawer.min.js | — |
+| merch.html | styles.min.css | audio.min.js + drawer.min.js | — |
+| projects.html | styles.min.css | audio.min.js + drawer.min.js | — |
+| riotproject.html | styles.min.css | audio.min.js + drawer.min.js | form action="#" (placeholder) |
+| contactme.html | styles.min.css | audio.min.js + drawer.min.js | Formspree `mwpkndan` |
+| translate.html | components/translate.min.css | lang.min.js + audio.min.js + drawer.min.js | Formspree `mwpkndan` |
+| submitted-translate.html | components/translate.min.css | audio.min.js + drawer.min.js | — |
+| secret.html | styles.min.css | audio.min.js + drawer.min.js + secret.min.js | — |
 
 ---
 
@@ -138,9 +152,17 @@ The logo has a CSS `heartbeat` keyframe animation (`2.4s ease-in-out infinite`):
 | `.project-card__cta` | "View demo →" label; underlines on hover/focus |
 | `.project-card--placeholder` | Dashed-border empty card to pad incomplete rows; hidden on mobile; `aria-hidden="true"` |
 
-### Audio toggle (styles.css)
+### Audio cluster (styles.css and components/translate.css)
 
-`#audio-toggle` is a fixed 48×48 px button pinned to `bottom: 20px; right: 20px; z-index: 50`. Styled in the dark neon-green theme. Repositions to `bottom: 12px; right: 12px` at 768px. Transitions disabled under `prefers-reduced-motion`.
+Three fixed buttons form the audio cluster at the bottom-right corner:
+
+| Selector | Position | Role |
+|----------|----------|------|
+| `#audio-toggle` | `bottom: 20px; right: 20px` | Mute/unmute toggle (🔇 / 🔊) |
+| `#audio-volume` | `bottom: 20px; right: 76px` | Volume cycle button (shows current %) |
+| `#audio-next` | `bottom: 20px; right: 132px` | Skip to next track (⏭) |
+
+All three are `48×48px`, `z-index: 50`, styled in the dark neon-green theme. Repositioned at `768px` breakpoint. Transitions disabled under `prefers-reduced-motion`. Identical rules exist in both `styles.css` (dark theme) and `components/translate.css` (light/translate theme).
 
 ### Page transitions (styles.css)
 
@@ -152,9 +174,17 @@ Layered approach — works at three levels:
 
 Content always ends fully visible — there is no animation that could leave `main` hidden.
 
+### Promo drawer (styles.css and components/translate.css)
+
+`.drawer` is `position: fixed; bottom: 20px; left: 0; z-index: 40`. The panel slides in/out via `transform: translateX(...)` with `transition: 280ms ease-out`. `data-open="true"` on `.drawer` is the open state. `.drawer--no-transition` suppresses animation during initial state restore. The `.drawer__toggle` is a 28×44px button attached to the right edge of the drawer (border-left: none, rounded right corners). Identical rules exist in both `styles.css` and `components/translate.css`. Transitions disabled under `prefers-reduced-motion`.
+
+### Secret page styling (styles.css)
+
+`.secret-form` and child selectors style the password gate in `secret.html`. Input, button, and `#secret-message` are all styled within `styles.css`. No separate stylesheet.
+
 ### Translate theme (translate.css)
 
-Completely separate stylesheet — light blue gradient, no dark theme. Used only by `translate.html` and `submitted-translate.html`. Does not share variables with `styles.css`.
+Completely separate stylesheet — light blue gradient, no dark theme. Used only by `translate.html` and `submitted-translate.html`. Does not share variables with `styles.css`. Also contains its own copies of the audio cluster and drawer styles.
 
 ---
 
@@ -197,29 +227,97 @@ Users can add multiple service requests. `addRequest()` in `lang.js` clones the 
 
 ---
 
-## Background audio
+## Background audio cluster
 
-Every page in `src/pages/` includes:
+Every page in `src/pages/` includes three buttons forming the audio cluster and a script tag:
 
 ```html
-<audio id="bg-audio" loop muted playsinline preload="auto">
+<audio id="bg-audio" muted playsinline preload="auto">
     <source src="../../assets/audio/Cosmic_Hippo_lavender.mp3" type="audio/mpeg">
 </audio>
 <button id="audio-toggle" type="button" aria-label="Unmute background music" aria-pressed="false">🔇</button>
+<button id="audio-volume" type="button" aria-label="Volume 10 percent, click to change">10%</button>
+<button id="audio-next" type="button" aria-label="Next track">⏭</button>
 <script src="../js/audio.min.js" defer></script>
 ```
 
+Note: `<audio>` does **not** have the `loop` attribute — this is intentional to allow auto-advance to the next track via the `ended` event.
+
 **`src/js/audio.js` behavior:**
-- Default state is **muted** — `isMuted()` returns `true` unless `localStorage.getItem('bgAudioMuted') === 'false'`.
-- On load, `applyState(isMuted())` syncs the `<audio>` element, `aria-pressed`, `aria-label`, and button emoji (🔇 / 🔊). Then `audio.play()` is called immediately (silently catches autoplay rejections).
-- On toggle click: flips mute state, writes `localStorage.setItem('bgAudioMuted', ...)`, calls `applyState()`, and if now unmuted calls `audio.play()`.
-- **Browser autoplay limitation**: browsers block audio with sound until a user gesture. The audio element starts playing immediately but remains muted by default, so there is no policy violation. Sound only plays after the user explicitly unmutes via the toggle button.
-- **Restarts on navigation by design**: each page load re-creates the `<audio>` element from scratch. The track restarts from the beginning on every page navigation. This is intentional — no cross-page audio continuity.
-- **localStorage key**: `bgAudioMuted`. This is the site's first use of `localStorage`.
 
-Three MP3 tracks are present in `assets/audio/`: `Cosmic_Hippo_lavender.mp3` (active, used by all pages), `Cosmic_Hippo_Plum.mp3`, and `Cosmic_Hippo_mauve.mp3` (both present but not wired to any page).
+Three localStorage keys control state:
 
-The audio additions required **no CSP change** — the `<audio>` element, the `<button>`, and `audio.min.js` are all same-origin resources. `default-src 'self'` covers them.
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `bgAudioMuted` | `'true'` (muted) | `isMuted()` returns `true` unless value is exactly `'false'` |
+| `bgAudioTrack` | `0` | Index into the `tracks.json` array |
+| `bgAudioVolume` | `0.1` | Must be one of the `VOLUME_STEPS` values; defaults to `0.1` if invalid |
+
+**Playlist:** `audio.js` fetches `../../data/tracks.json` on load (a JSON array of filenames, e.g. `["Cosmic_Hippo_lavender.mp3","Cosmic_Hippo_mauve.mp3","Cosmic_Hippo_Plum.mp3"]`). The `<source src>` in the HTML is an initial default only; `loadTrack()` updates it via JS after the fetch.
+
+**Volume steps:** `VOLUME_STEPS = [0.1, 0.25, 0.5, 1.0]`. The volume button cycles through these values. `targetVolume` is the single source of truth — fade-in ramps toward it, live changes apply it immediately if no fade is running.
+
+**Fade behavior:**
+- `fadeIn` (400ms): ramps from current volume to `targetVolume` using `requestAnimationFrame`.
+- `fadeOut` (350ms): ramps from current volume to 0, then calls a callback (used before loading the next track on manual skip).
+- If a fade is already running, `cancelFade()` stops it before starting a new one.
+- Volume changes via the volume button: if a fade ramp is already running, `targetVolume` is updated and the ramp converges to the new target automatically. If no fade is running and audio is playing unmuted, the new volume is applied to `audio.volume` immediately.
+
+**Auto-advance:** `audio.addEventListener('ended', autoAdvance)` — when a track ends naturally, the next track in the playlist loads and plays without a fade-out (no manual skip, so no `fadeOut` call).
+
+**Manual next:** clicking `#audio-next` calls `nextTrack()` which `fadeOut`s, then loads and plays the next track.
+
+**Mute toggle:** flips `audio.muted`, writes `localStorage`, calls `applyMuteState()`. If unmuting, sets `audio.volume = 0` then calls `audio.play()` then `fadeIn()`.
+
+**Browser autoplay limitation:** browsers block audio with sound until a user gesture. The audio element starts playing immediately but remains muted by default, so there is no policy violation. Sound only plays after the user explicitly unmutes via the toggle button.
+
+**Restarts on navigation by design:** each page load re-creates the `<audio>` element from scratch. `bgAudioTrack` persists which track to load, but playback restarts from the beginning of that track on every navigation. No cross-page audio continuity via fade.
+
+The audio cluster required **no CSP change** — all resources are same-origin. `default-src 'self'` covers them.
+
+---
+
+## Promo drawer
+
+Every page in `src/pages/` includes the following markup just before `</body>`:
+
+```html
+<div class="drawer" id="promo-drawer">
+    <div id="drawer-panel" class="drawer__panel">
+        <a href="cv.html"><img src="../../assets/images/Hire_me.gif" alt="Hire me" width="220" height="218" loading="lazy"></a>
+    </div>
+    <button id="drawer-toggle" class="drawer__toggle" type="button" aria-expanded="false" aria-controls="drawer-panel" aria-label="Open promo panel">&gt;</button>
+</div>
+<script src="../js/drawer.min.js" defer></script>
+```
+
+**`src/js/drawer.js` behavior:**
+
+- localStorage key: `promoDrawerOpen`. Default state is **closed** (`localStorage.getItem('promoDrawerOpen') !== 'true'`).
+- On load, `applyState(isOpen, false)` restores the saved state without animation (passes `false` to suppress transition via `drawer--no-transition`).
+- Toggle click: flips `isOpen`, writes to `localStorage`, calls `applyState(isOpen, true)` with animation enabled. When closing, calls `toggle.focus()` to return focus to the toggle button.
+- Open state: sets `data-open="true"` on `.drawer`, `aria-expanded="true"`, `aria-label="Close promo panel"`, toggle text `<`.
+- Closed state: removes `data-open`, `aria-expanded="false"`, `aria-label="Open promo panel"`, toggle text `>`.
+- The panel slides via CSS `transform: translateX(...)` — when closed, the panel is translated off-screen to the left. Tab order is not explicitly controlled by JS; the panel is visually hidden by transform but remains in the DOM.
+- Slide transition is disabled under `prefers-reduced-motion` (CSS rule).
+- The image (`Hire_me.gif`) is self-hosted. Any future externally-hosted ad would require a deliberate CSP change (`img-src` or `connect-src` addition) — do not weaken CSP preemptively.
+
+---
+
+## Secret page (easter egg)
+
+`secret.html` is a fun easter egg page linked in the nav as "Super Secret" (after "Contact Me" on every page).
+
+**Markup:** a single `<section id="secret-gate">` with a password `<input>`, a submit `<button id="secret-submit">`, and a `<p id="secret-message" aria-live="polite">` for feedback.
+
+**`src/js/secret.js` behavior:**
+- The correct password is stored in plain text in the JS source (`PASSWORD = 'LuntikxDinulik4Ever'`). This is **not real authentication** — it is an intentional fun gate, not a security mechanism. Never put anything sensitive behind it.
+- Correct password: `window.location.href = 'index.html'` (redirects to home).
+- Wrong password: sets `#secret-message` text to `'wrong password :)'`, clears the input, and refocuses it. The `aria-live="polite"` region announces the message to screen readers.
+- Submit triggers on button click and on `Enter` keydown in the password input.
+- No `<form>` element, no Formspree, no server-side logic.
+
+**CSP:** `default-src 'self'` (same as most pages — no special CSP needed).
 
 ---
 
@@ -240,15 +338,17 @@ All pages use `<meta http-equiv="Content-Security-Policy">`.
 
 | Page | CSP |
 |------|-----|
-| Most pages | `default-src 'self'` |
+| Most pages (index, cv, merch, projects, riotproject, secret) | `default-src 'self'` |
 | contactme.html | `default-src 'self'; form-action https://formspree.io` |
 | translate.html | `default-src 'self'; form-action https://formspree.io` |
-| root index.html | `default-src 'self'; script-src 'sha256-...'` (inline redirect script hash) |
+| submitted-translate.html | `default-src 'self'` |
+| root index.html | `default-src 'self'; script-src 'sha256-D0rB+6Ldc2qO9UVKr8oazjQAWp4SMOR3+/I9hvq38Io='` |
 
 Rules:
 - `script-src 'self'` is **redundant** when `default-src 'self'` is present — do not add it.
 - Any page that submits to Formspree needs `form-action https://formspree.io` in CSP, otherwise the form POST is blocked.
 - The root `index.html` inline script requires a valid sha256 hash in `script-src`. If the inline script changes, regenerate the hash.
+- None of the audio cluster, drawer, or secret page features required CSP changes — all are same-origin resources with no inline scripts.
 
 All pages also include:
 ```html
@@ -280,11 +380,13 @@ Language icons in translate.html use `role="button"` + `tabindex="0"` with keybo
 ## Known issues / intentional placeholders
 
 - **riotproject.html** — `form action="#"` is a placeholder. No Riot API integration exists yet. The form currently does nothing on submit.
-- **merch.html** — placeholder content only ("My merch here with photos.").
-- **projects.html** — now has real project cards (Chess Strategy Recommender, Heart Disease Classification). A third `.project-card--placeholder` fills the grid row. Card images are `chess-ml.jpg` and `heart.png` (both present in `assets/images/`). The `assets/images/projects/` and `assets/images/backgrounds/` subdirectories exist but are empty (reserved for future use).
-- **`assets/audio/Cosmic_Hippo_Plum.mp3` and `Cosmic_Hippo_mauve.mp3`** — present on disk but not referenced by any page. Only `Cosmic_Hippo_lavender.mp3` is active.
+- **merch.html** — placeholder content only.
+- **projects.html** — has two real project cards (Chess Strategy Recommender linking to `https://github.com/Hisslyn/chess_predictor`, Heart Disease Classification linking to `https://github.com/Hisslyn/ML-group-project`). A third `.project-card--placeholder` fills the grid row. Card images are `chess-ml.jpg` and `heart.png` (both in `assets/images/`). The `assets/images/projects/` and `assets/images/backgrounds/` subdirectories exist but are empty.
 - **`assets/icons/tech/`** — directory exists but is empty (reserved for tech stack icons).
 - **`data/*.json` missing `validationError` key** — `lang.js` falls back to a hardcoded English string. Add the key to all three JSON files when proper i18n of the error message is needed.
+- **`drawer-promo.webp`** — present in `assets/images/` but not referenced by any page. Only `Hire_me.gif` is used by the drawer.
+- **`fonts.min.css`** — present in `src/css/` but not referenced by any page (not produced by `npm run build`; appears to be a leftover artifact).
+- **`side kick/`** — self-contained experimental prototype (Three.js solar-system navigation). Not linked from any page in `src/pages/`, not built by `npm run build`, and has its own external CDN dependencies (Google Fonts, cdnjs three.js r128) that would violate the main site's `default-src 'self'` CSP. Planet `href` values (`page1.html`–`page4.html`) are placeholders. Keep it isolated from the main site unless deliberately integrated with a matching CSP update.
 
 ---
 
@@ -327,7 +429,7 @@ Exception: the main index page is just `Azat Yeranosyan`.
 Pages in `src/pages/` reference assets with `../../assets/...` (two levels up).
 Pages in `src/pages/` reference CSS with `../css/...` (one level up).
 Pages in `src/pages/` reference JS with `../js/...` (one level up).
-Data JSON files are referenced from JS as `../../data/{lang}.json`.
+Data JSON files are referenced from JS as `../../data/{lang}.json` and `../../data/tracks.json`.
 
 Do not change this path structure without updating all references.
 
@@ -340,7 +442,11 @@ Do not change this path structure without updating all references.
 - Do not change `name="service[]"` or `name="description[]"` back to non-array names.
 - Do not edit `.min.css` or `.min.js` directly — they are build artifacts.
 - Do not remove `data-i18n` attributes from labels in translate.html — the i18n system depends on them.
-- Do not hand-edit `audio.min.js` — edit `audio.js` and run `npm run build`.
-- Do not rename the localStorage key `bgAudioMuted` without updating `audio.js` and all pages that read it.
+- Do not hand-edit `audio.min.js`, `drawer.min.js`, or `secret.min.js` — edit the source `.js` and run `npm run build`.
+- Do not rename the localStorage keys `bgAudioMuted`, `bgAudioTrack`, `bgAudioVolume`, or `promoDrawerOpen` without updating the corresponding JS source and all pages that may read them.
 - Do not autoplay with sound — the `<audio>` element must start `muted`. Sound only plays after an explicit user gesture (toggle click).
-- Do not move `assets/audio/` without updating the `src` path in every page's `<audio>` element.
+- Do not restore the `loop` attribute on `<audio>` — its absence is intentional to allow the `ended` event to fire for auto-advance to the next track.
+- Do not move `assets/audio/` without updating the `src` path in every page's `<audio>` element and the `AUDIO_BASE` constant in `audio.js`.
+- Do not treat the secret-page password as real security. Do not put anything sensitive behind it — the password is visible in plain text in the client JS.
+- Do not pre-weaken CSP for hypothetical future third-party ads or images — deliberately scope `img-src` or `connect-src` only when a concrete external resource is actually added.
+- Do not move the audio cluster from bottom-right or the drawer from bottom-left without checking they do not collide at small viewport widths.
