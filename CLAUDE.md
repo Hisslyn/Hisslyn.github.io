@@ -35,6 +35,11 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 │   ├── ru.json                   # Russian
 │   ├── hy.json                   # Armenian
 │   └── tracks.json               # Ordered playlist array of audio filenames for audio.js
+├── universe/                     # Production "Universe" dimension — served, isolated, NOT built by npm
+│   ├── index.html                # NEXUS Three.js scene; own scoped CSP (CDN fonts + three.js r128)
+│   ├── transition.html           # Portal/loading page; direction-aware (?to=universe / ?to=home)
+│   ├── nexus.css                 # NEXUS scene styles (dark space theme, custom cursor, Syne font)
+│   └── nexus.js                  # Three.js scene: particle cloud, sun, 5 orbiting planets, warp nav
 ├── src/
 │   ├── pages/                    # All HTML pages (served from here)
 │   │   ├── index.html
@@ -45,7 +50,8 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 │   │   ├── translate.html        # Has its own CSS + JS (standalone page)
 │   │   ├── submitted-translate.html
 │   │   ├── contactme.html
-│   │   └── secret.html           # Easter egg page with client-side password gate
+│   │   ├── secret.html           # Easter egg page with client-side password gate + Skip button
+│   │   └── timer.html            # Two-bar countdown: green fill = elapsed, "% left" = remaining, editable 24h time inputs (H:M–HH:MM accepted, normalized to HH:MM), localStorage-persisted; standard site header/nav/footer via styles.min.css
 │   ├── css/
 │   │   ├── fonts.css             # @font-face declarations only
 │   │   ├── fonts.min.css         # Minified fonts.css (artifact, not referenced by pages)
@@ -53,7 +59,11 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 │   │   ├── styles.min.css        # Built: fonts.css + styles.css minified together
 │   │   └── components/
 │   │       ├── translate.css     # Standalone styles for translate.html (source)
-│   │       └── translate.min.css # Built: translate.css minified
+│   │       ├── translate.min.css # Built: translate.css minified
+│   │       ├── nexus.css         # Source styles for nexus pages (separate from universe/nexus.css)
+│   │       ├── nexus.min.css     # Built: nexus.css minified
+│   │       ├── timer.css         # Source styles for timer.html (two-bar countdown, animated fill)
+│   │       └── timer.min.css     # Built: timer.css minified
 │   └── js/
 │       ├── lang.js               # Source JS for translate.html i18n + dynamic request blocks
 │       ├── lang.min.js           # Built: lang.js minified
@@ -61,15 +71,19 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 │       ├── audio.min.js          # Built: audio.js minified
 │       ├── drawer.js             # Source JS for bottom-left promo drawer (open/close, localStorage)
 │       ├── drawer.min.js         # Built: drawer.js minified
-│       ├── secret.js             # Source JS for secret page client-side password check
-│       └── secret.min.js         # Built: secret.js minified
+│       ├── secret.js             # Source JS for secret page client-side password check + Skip
+│       ├── secret.min.js         # Built: secret.js minified
+│       ├── nexus.js              # Source JS for nexus pages (separate from universe/nexus.js)
+│       ├── nexus.min.js          # Built: nexus.js minified
+│       ├── timer.js              # Source JS for timer.html (rAF countdown, localStorage persistence)
+│       └── timer.min.js          # Built: timer.js minified
 ├── package.json                  # Build scripts only (clean-css-cli + terser)
 ├── scripts/
 │   └── data_collector.py         # Utility script (not part of the site)
-└── side kick/                    # Standalone experimental prototype — NOT part of the served site
-    ├── index.html                # Three.js solar-system navigation concept ("NEXUS")
-    ├── nexus.css                 # Styles for the prototype (dark space theme, custom cursor, Syne font)
-    └── nexus.js                  # Three.js scene: particle cloud, animated sun, orbiting planets, warp navigation
+└── side kick/                    # ORIGINAL prototype — untouched, not linked, not served
+    ├── index.html                # Three.js solar-system navigation concept ("NEXUS") — placeholder hrefs
+    ├── nexus.css                 # Prototype styles (not the same as universe/nexus.css)
+    └── nexus.js                  # Prototype scene logic (not the same as universe/nexus.js)
 ```
 
 ---
@@ -82,19 +96,27 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 npm run build
 ```
 
-This runs two scripts (`minify:css` then `minify:js`) which expand to exactly these 6 commands:
+This runs two scripts (`minify:css` then `minify:js`) which expand to exactly these 10 commands:
 1. `cleancss -o src/css/styles.min.css src/css/fonts.css src/css/styles.css`
 2. `cleancss -o src/css/components/translate.min.css src/css/components/translate.css`
-3. `terser src/js/lang.js -o src/js/lang.min.js -c -m`
-4. `terser src/js/audio.js -o src/js/audio.min.js -c -m`
-5. `terser src/js/drawer.js -o src/js/drawer.min.js -c -m`
-6. `terser src/js/secret.js -o src/js/secret.min.js -c -m`
+3. `cleancss -o src/css/components/nexus.min.css src/css/components/nexus.css`
+4. `cleancss -o src/css/components/timer.min.css src/css/components/timer.css`
+5. `terser src/js/lang.js -o src/js/lang.min.js -c -m`
+6. `terser src/js/audio.js -o src/js/audio.min.js -c -m`
+7. `terser src/js/drawer.js -o src/js/drawer.min.js -c -m`
+8. `terser src/js/secret.js -o src/js/secret.min.js -c -m`
+9. `terser src/js/nexus.js -o src/js/nexus.min.js -c -m`
+10. `terser src/js/timer.js -o src/js/timer.min.js -c -m`
+
+Note: `src/css/components/nexus.css` and `src/js/nexus.js` are **separate** source files from `universe/nexus.css` and `universe/nexus.js`. The `universe/` files are **not** built by `npm run build` — edit them directly. `universe/transition.html` is also not part of the build.
 
 Pages load `.min.css` and `.min.js` — never the source files directly. Editing source without rebuilding has no visible effect.
 
 ---
 
 ## Page inventory
+
+All `src/pages/` nav bars include a "Universe" link pointing to `../../universe/transition.html?to=universe`.
 
 | Page | CSS used | JS used | Form backend |
 |------|----------|---------|--------------|
@@ -107,6 +129,9 @@ Pages load `.min.css` and `.min.js` — never the source files directly. Editing
 | translate.html | components/translate.min.css | lang.min.js + audio.min.js + drawer.min.js | Formspree `mwpkndan` |
 | submitted-translate.html | components/translate.min.css | audio.min.js + drawer.min.js | — |
 | secret.html | styles.min.css | audio.min.js + drawer.min.js + secret.min.js | — |
+| timer.html | styles.min.css + components/timer.min.css | audio.min.js + drawer.min.js + timer.min.js | — |
+| universe/index.html | universe/nexus.css (own) | universe/nexus.js (own) + three.js r128 (CDN) | — |
+| universe/transition.html | inline `<style>` only | inline `<script>` only (direction + Canvas 2D) | — |
 
 ---
 
@@ -308,16 +333,59 @@ Every page in `src/pages/` includes the following markup just before `</body>`:
 
 `secret.html` is a fun easter egg page linked in the nav as "Super Secret" (after "Contact Me" on every page).
 
-**Markup:** a single `<section id="secret-gate">` with a password `<input>`, a submit `<button id="secret-submit">`, and a `<p id="secret-message" aria-live="polite">` for feedback.
+**Markup:** a single `<section id="secret-gate">` with a password `<input>`, a submit `<button id="secret-submit">`, a Skip `<button id="secret-skip" hidden>`, and a `<p id="secret-message" aria-live="polite">` for feedback.
 
 **`src/js/secret.js` behavior:**
 - The correct password is stored in plain text in the JS source (`PASSWORD = 'LuntikxDinulik4Ever'`). This is **not real authentication** — it is an intentional fun gate, not a security mechanism. Never put anything sensitive behind it.
-- Correct password: `window.location.href = 'index.html'` (redirects to home).
+- sessionStorage key `secretUnlocked`: set to `'true'` on a correct password submission. Checked on load — if `'true'`, the Skip button's `hidden` attribute is removed, making it visible and clickable.
+- Correct password: sets `sessionStorage.setItem('secretUnlocked','true')`, then redirects to `timer.html`.
+- Skip button (visible only when `secretUnlocked === 'true'` in sessionStorage): redirects to `timer.html`. Button is hidden by default (`hidden` attribute in HTML); JS removes the attribute when the flag is set.
 - Wrong password: sets `#secret-message` text to `'wrong password :)'`, clears the input, and refocuses it. The `aria-live="polite"` region announces the message to screen readers.
 - Submit triggers on button click and on `Enter` keydown in the password input.
 - No `<form>` element, no Formspree, no server-side logic.
+- The `secretUnlocked` flag persists within the browser session (sessionStorage) and is cleared automatically when the session ends (tab/window close).
 
 **CSP:** `default-src 'self'` (same as most pages — no special CSP needed).
+
+---
+
+## Timer page
+
+`timer.html` is the destination reached after a correct password entry on `secret.html` (or via the Skip button in the same session). It is a functional two-bar countdown page.
+
+**Layout:** standard site header (`class="dark-header"` + `.logo-container` + `.nav-links`), footer, audio-cluster, and drawer — identical markup to cv.html/secret.html, styled entirely by `styles.min.css` (no bespoke header/nav CSS in `timer.css`). `<main id="main-content" class="timer-page">` holds an `<h1>Countdown</h1>` and two `.timer-bar-wrapper` blocks. Timer is not a nav item — no `class="active"` on any link.
+
+**Each bar:**
+- Editable 24h time inputs (`<input type="text" inputmode="numeric">`). Accept flexible formats: `H:M`, `H:MM`, `HH:M`, `HH:MM` (1–2 digit hours 0–23, 1–2 digit minutes 0–59). On blur, value is normalized to zero-padded `HH:MM` for display, storage, and computation. Out-of-range values show a gentle inline hint and shake animation; no harsh errors.
+- "Next day" checkbox next to the end-time field. When checked, `effective_end = end_time + 24 h` (the end is interpreted as the following calendar day). When unchecked, `effective_end = end_time` (same day). This is the **only** cross-midnight mechanism — there is no automatic inference.
+- Horizontal progress track (`role="progressbar"`). GREEN fill width = elapsed proportion `(now − start) / (effective_end − start)`, computed using absolute timestamps so overnight windows detect active/upcoming/done correctly even when the current time is already past midnight.
+- `"% left"` readout = `round((effective_end − now) / (effective_end − start) × 100)` — the dark-remainder portion.
+- If "Next day" is unchecked and end ≤ start, the bar shows `—` and a gentle inline hint: "end ≤ start — enable 'Next day' for overnight windows". No progress is shown.
+- Before start: 0% filled, "starts HH:MM", `.data-upcoming="true"`. After end: 100% filled, "✓ done", `.data-done="true"`.
+
+**`timer.js` behavior:**
+- `requestAnimationFrame` loop recalculates fill on every frame; "% left" text updates only when the integer changes.
+- localStorage keys: `timerBar1Start`, `timerBar1End` (defaults `09:00` / `17:00`), `timerBar2Start`, `timerBar2End` (defaults `09:00` / `18:00`), `timerBar1NextDay`, `timerBar2NextDay` (boolean, default `false`), `timerBar1Name` (default `'Diana'`), `timerBar2Name` (default `'Azat'`). Saved on `change` event; restored on load.
+
+**`timer.css` uses site CSS custom properties** (`--background-color`, `--neon-green`, etc.) — no hardcoded hex colours that duplicate theme vars. All decorative motion disabled under `prefers-reduced-motion: reduce`.
+
+**`timer.css` animations:**
+- Card entrance stagger (`timerCardIn`, 320 ms, delayed 60/150 ms per panel).
+- Slow ambient shimmer sweeping across fill (`timerShimmer`, 3.2 s, replaces old diagonal sheen).
+- Leading-edge white bloom at fill's right edge (`timerEdgePulse`, 1.8 s).
+- Fill entrance: animates from 0 to actual value on load (`timer-fill--entering`, 900 ms ease-out).
+- At `< 15% left` (`data-urgency="true"`): fill and glow shift toward warm amber.
+- Done state (`data-done="true"`): one-time completion pulse on the card wrapper (`timerDonePulse`).
+- "% left" number roll on integer change (`timerPctRoll`, 160 ms).
+- Gentle shake on invalid input (`timerShake`, 260 ms).
+- CSS `transition: width 280ms` on `.timer-fill` so input edits glide; reduced-motion shortens to 80 ms.
+
+**localStorage keys:** `timerBar1Start`, `timerBar1End`, `timerBar1Name`, `timerBar1NextDay`, `timerBar2Start`, `timerBar2End`, `timerBar2Name`, `timerBar2NextDay`.
+
+**CSS:** `styles.min.css` + `components/timer.min.css`.
+**JS:** `audio.min.js` + `drawer.min.js` + `timer.min.js` (all `defer`).
+
+**CSP:** `default-src 'self'`.
 
 ---
 
@@ -338,16 +406,21 @@ All pages use `<meta http-equiv="Content-Security-Policy">`.
 
 | Page | CSP |
 |------|-----|
-| Most pages (index, cv, merch, projects, riotproject, secret) | `default-src 'self'` |
+| Most pages (index, cv, merch, projects, riotproject, secret, timer) | `default-src 'self'` |
 | contactme.html | `default-src 'self'; form-action https://formspree.io` |
 | translate.html | `default-src 'self'; form-action https://formspree.io` |
 | submitted-translate.html | `default-src 'self'` |
 | root index.html | `default-src 'self'; script-src 'sha256-D0rB+6Ldc2qO9UVKr8oazjQAWp4SMOR3+/I9hvq38Io='` |
+| universe/index.html | `default-src 'self'; img-src 'self' data:; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdnjs.cloudflare.com 'sha256-ykMXiZRV+8U7YfzZzwFd/KSGIUVDFL1NVm6Je961K14='; connect-src 'self'` |
+| universe/transition.html | `default-src 'self'; script-src 'sha256-...' 'sha256-...'; style-src 'self' 'unsafe-inline'` |
 
 Rules:
 - `script-src 'self'` is **redundant** when `default-src 'self'` is present — do not add it.
 - Any page that submits to Formspree needs `form-action https://formspree.io` in CSP, otherwise the form POST is blocked.
 - The root `index.html` inline script requires a valid sha256 hash in `script-src`. If the inline script changes, regenerate the hash.
+- `universe/index.html` intentionally relaxes CSP to permit Google Fonts (Syne + Space Mono) and cdnjs three.js r128, plus a sha256 hash for its single inline `localStorage.setItem` script. This is a deliberate, scoped exception — do not apply `default-src 'self'` to it.
+- `universe/transition.html` uses `'unsafe-inline'` in `style-src` because all its styles are in a `<style>` block (no external stylesheet), and two sha256 hashes in `script-src` for its two inline `<script>` blocks (direction detection + animation). No CDN, no external resources.
+- If any inline script in `universe/index.html` or `universe/transition.html` changes, recompute and update the sha256 in the respective CSP meta tag.
 - None of the audio cluster, drawer, or secret page features required CSP changes — all are same-origin resources with no inline scripts.
 
 All pages also include:
@@ -386,8 +459,9 @@ Language icons in translate.html use `role="button"` + `tabindex="0"` with keybo
 - **`data/*.json` missing `validationError` key** — `lang.js` falls back to a hardcoded English string. Add the key to all three JSON files when proper i18n of the error message is needed.
 - **`drawer-promo.webp`** — present in `assets/images/` but not referenced by any page. Only `Hire_me.gif` is used by the drawer.
 - **`fonts.min.css`** — present in `src/css/` but not referenced by any page (not produced by `npm run build`; appears to be a leftover artifact).
-- **`side kick/`** — self-contained experimental prototype (Three.js solar-system navigation). Not linked from any page in `src/pages/`, not built by `npm run build`, and has its own external CDN dependencies (Google Fonts, cdnjs three.js r128) that would violate the main site's `default-src 'self'` CSP. Planet `href` values (`page1.html`–`page4.html`) are placeholders. Keep it isolated from the main site unless deliberately integrated with a matching CSP update.
-- **`universe/`** — the production "Universe" dimension (relocated and wired NEXUS scene). See the `universe/ dimension` section below.
+- **`timer.html`** — functional two-bar countdown. Destination after a correct password entry on `secret.html` (or the Skip button in the same session). See "Timer page" section.
+- **`side kick/`** — the ORIGINAL Three.js solar-system prototype. Not linked from any page, not built by `npm run build`. Planet `href` values (`page1.html`–`page4.html`) are placeholders. Leave it untouched — `universe/` is the promoted, live, integrated copy.
+- **`universe/`** — the production "Universe" dimension. See the `universe/ dimension` section above.
 
 ---
 
@@ -438,28 +512,78 @@ Do not change this path structure without updating all references.
 
 ## universe/ dimension
 
-`universe/` is an **intentionally isolated** dimension — a Three.js solar-system scene reached from the home page "Universe" option box.
+`universe/` is the **production "Universe" dimension** — a Three.js solar-system scene isolated from the main site's CSS/JS/build system. Reached from every page's top nav ("Universe" link) and from the home page nav-boxes, both pointing to `../../universe/transition.html?to=universe`.
 
-**Entry points:** `src/pages/index.html` top nav and nav-box both link to `../../universe/transition.html?to=universe`.
+### Files
 
-**Files:**
-- `universe/transition.html` — standalone portal/loading page. Direction-aware via `?to=` query param:
-  - `?to=universe` (default): morphs site green palette (`#081c15` bg, `#18b96e` accent) → universe palette (`#050814` bg, `#4ad6ff`/`#a78bff` accents) over ~3 s, then navigates to `./index.html`.
-  - `?to=home`: writes `localStorage.setItem('bgAudioMuted','true')` first (so main site loads muted with 🔇), then morphs universe → green over ~3 s, then navigates to `../src/pages/index.html`.
-  - Fully standalone: no CDN, no shared CSS/JS, CSP `default-src 'self'; script-src 'sha256-...'` (hash of the inline direction script). Includes a visible "Skip" link pointing at the correct destination. Respects `prefers-reduced-motion` (instant redirect, still writes mute key when `to=home`).
-- `universe/index.html` — the NEXUS Three.js scene. Title "Universe | Azat Yeranosyan". Has its own scoped CSP permitting `fonts.googleapis.com`, `fonts.gstatic.com`, `cdnjs.cloudflare.com` (three.js r128), and a sha256 hash for the single inline `localStorage.setItem('bgAudioMuted','true')` script that runs on load. Planets link to real site pages via `../src/pages/...`. Has a "← Home" link to `./transition.html?to=home`.
-- `universe/nexus.css` — styles for the NEXUS scene (dark space theme, custom cursor, Syne font). Not part of the main build.
-- `universe/nexus.js` — Three.js scene logic. Not part of the main build, not minified.
+- `universe/index.html` — NEXUS Three.js scene. Title "Universe | Azat Yeranosyan". Own scoped CSP (see Security headers table). Loads Google Fonts (Syne + Space Mono) from CDN, three.js r128 from cdnjs, and `./nexus.css` + `./nexus.js` as same-origin files. On load, an inline `<script>` writes `localStorage.setItem('bgAudioMuted','true')` (sha256-hashed in CSP) so the main site loads muted when the user returns. Has a fixed `← Home` link (`./transition.html?to=home`) in the top-left.
+- `universe/transition.html` — portal/loading page. See "Portal / transition page" section below.
+- `universe/nexus.css` — NEXUS scene styles. Dark space palette (`--bg: #050814`, `--c1: #4ad6ff`, `--c2: #a78bff`, `--muted: #7e88b8`). Custom cursor, no scrollbars. Syne + Space Mono fonts. Not part of `npm run build` — edit directly.
+- `universe/nexus.js` — Three.js scene logic. Not part of `npm run build`, not minified — edit directly.
 
-**bgAudioMuted cross-boundary touch:** `universe/index.html` and `transition.html?to=home` both write `localStorage.setItem('bgAudioMuted','true')`. This is the single intentional cross-boundary touch — using the documented key so the main site's audio.js reads it on load and shows the 🔇 icon automatically. No shared code.
+### NEXUS scene (nexus.js)
 
-**Rules — do NOT:**
-- Do not fold `universe/` into `npm run build` or `styles.css`.
+- **Particle cloud:** 15 000 additive-blended points in a flattened sphere (radius 98), colored as a gradient between `#4ad6ff` and `#a78bff`, slowly rotating.
+- **Milky Way skybox:** procedural canvas texture (2048×1024) on a `SphereGeometry(120)` inside-out — blue/purple nebula band across a star field.
+- **Falling meteors:** 44 icosahedron meshes + line trails falling along a fixed direction vector, recycling when they leave the scene bounds.
+- **Central sun:** animated `ShaderMaterial` on `SphereGeometry(2.8, 96, 96)` using fBm simplex noise for a dynamic orange/white surface. Surrounded by a fresnel shell, 5 corona sprite layers, a point light, and a 4-ray star-flare sprite. Subtle scale glow on hover (raycaster) — no label. Click navigates to `../src/pages/secret.html`.
+- **5 orbiting planets** (one per nav destination, excluding Universe/current page and Home):
+
+| Planet | href | Orbital radius | Has ring |
+|--------|------|---------------|----------|
+| CV | `../src/pages/cv.html` | 18 | yes |
+| Merch | `../src/pages/merch.html` | 32 | no |
+| Riot Project | `../src/pages/riotproject.html` | 50 | yes |
+| Projects | `../src/pages/projects.html` | 70 | no |
+| Contact Me | `../src/pages/contactme.html` | 90 | no |
+
+  Each planet: procedural canvas texture (`SphereGeometry(r, 48, 48)`), additive glow sprite, inclined orbital plane, orbit ring line. Orbital phases staggered by 72° (TAU/5). Click triggers a 1.1 s warp animation then `window.location.href` to the planet's page.
+- **Home button:** fixed DOM `<a class="home-link">← Home</a>` linking to `./transition.html?to=home`, not a planet.
+- **Super Secret:** the sun (raycaster target, no label) → `../src/pages/secret.html`. Hover produces only a subtle scale glow on the corona — deliberately unmarked.
+- **Camera:** orbit-camera (drag to rotate, scroll to zoom), slow auto-rotate. `theta`/`phi` spherical coords, `R` zooms 16–160.
+- **Labels:** DOM `.plabel` divs projected from 3D world positions via `v.project(camera)` each frame.
+
+### bgAudioMuted cross-boundary touch
+
+Both `universe/index.html` (inline script on load) and `universe/transition.html?to=home` (inline script before navigation) write `localStorage.setItem('bgAudioMuted','true')`. This is the single intentional cross-boundary coupling — the documented `bgAudioMuted` key is read by `audio.js` on every main-site page load, so the mute button shows 🔇 automatically when the user returns. No shared code between the dimensions.
+
+### Rules — do NOT
+
+- Do not fold `universe/nexus.css`, `universe/nexus.js`, or `universe/transition.html` into `npm run build` — they are edited directly. (Note: `src/css/components/nexus.css` and `src/js/nexus.js` are separate build-managed files used by other pages, not the same files.)
 - Do not apply the main site's `default-src 'self'` CSP to `universe/index.html` — it legitimately loads CDN resources.
 - Do not add the main site's audio cluster or drawer to any `universe/` page.
-- Do not treat `universe/nexus.js` as a built artifact — edit it directly (no `.min.js` counterpart).
-- If the inline scripts in `universe/index.html` or `universe/transition.html` change, recompute and update the sha256 in the respective CSP meta tag.
-- `side kick/` is the original prototype — leave it untouched. `universe/` is the integrated copy.
+- If any inline script in `universe/index.html` or `universe/transition.html` changes, recompute and update the sha256 in the respective CSP meta tag.
+- `side kick/` is the original prototype — leave it untouched. `universe/` is the promoted, live, integrated copy.
+
+---
+
+## Portal / transition page (universe/transition.html)
+
+Standalone Canvas 2D animation page — no CDN, no shared CSS/JS, no three.js. All styles are in a single `<style>` block (`style-src 'unsafe-inline'`); all scripts are two inline `<script>` blocks with sha256 hashes in CSP.
+
+**Direction-aware via `?to=` query param:**
+- `?to=universe` (default): green → universe palette morph, stars warp outward, single white bloom at arrival, then navigates to `./index.html`. Total ~2.4 s (navigate at ~2300 ms).
+- `?to=home`: writes `localStorage.setItem('bgAudioMuted','true')` before anything else, universe → green palette morph, stars collapse inward (no bloom), then navigates to `../src/pages/index.html`. Total ~2.0–2.2 s (navigate when `tTotal >= 0.92`, i.e. ~2208 ms).
+
+**Palette lerp:** OKLab colour math (Ottosson) via `hexToOklab` / `oklabToHex` / `lerpOklab` helper functions. Palette hexes:
+- Green site: bg `#081c15`, mid `#1b4332`, accent `#18b96e`
+- Universe: bg `#050814`, mid `#0a0f2e`, accent `#4ad6ff`
+
+**Starfield:** 380 stars in a `Float32Array` (7 floats/star: x, y, z, prevProjX, prevProjY, speed, size). Perspective projection with focal length 600. Stars warp outward (to=universe: z decreases toward camera) or collapse inward (to=home: z increases, x/y contract). Streak trails drawn with `ctx.lineTo` between previous and current projection; chromatic aberration (separate R/B offset strokes) grows during the late warp phase.
+
+**Bloom:** `to=universe` only. A white `<div id="bloom">` rises to opacity 0.88 then falls over ~300 ms. Navigation fires at the crest (~2300 ms). No bloom on `to=home`.
+
+**Progress arc:** SVG circle arc (`r=19`, `stroke-dasharray=119.38`) fills as `tTotal` advances 0→1. Arc colour and Skip link colour OKLab-lerp between the two palettes.
+
+**First paint:** `<html>` background is set to `#081c15` (green base) in the critical CSS to prevent a white flash on load. If `to=home`, a tiny inline script overrides it to `#050814` (universe base) before first paint.
+
+**Reduced-motion path:** Canvas hidden, `<div id="bg">` OKLab-dissolves over ~350 ms via `rAF`, then `window.location.replace(dest)`. Mute key still written when `to=home`.
+
+**Skip link:** `<a id="skip-link">` always visible, `href` set to correct destination by JS. Colour OKLab-lerps with the palette.
+
+**Prefetch:** during the ignite phase (`tIgnite > 0.15`), same-origin destination assets are `<link rel="prefetch">`-ed: `./index.html` + `./nexus.css` + `./nexus.js` (to=universe) or `../src/pages/index.html` (to=home).
+
+**Visibility-change handling:** if the tab is backgrounded, `rAF` is cancelled and `startTime` is shifted forward by the hidden duration on resume so the timeline doesn't jump.
 
 ---
 
@@ -470,8 +594,9 @@ Do not change this path structure without updating all references.
 - Do not change `name="service[]"` or `name="description[]"` back to non-array names.
 - Do not edit `.min.css` or `.min.js` directly — they are build artifacts.
 - Do not remove `data-i18n` attributes from labels in translate.html — the i18n system depends on them.
-- Do not hand-edit `audio.min.js`, `drawer.min.js`, or `secret.min.js` — edit the source `.js` and run `npm run build`.
-- Do not rename the localStorage keys `bgAudioMuted`, `bgAudioTrack`, `bgAudioVolume`, or `promoDrawerOpen` without updating the corresponding JS source and all pages that may read them.
+- Do not hand-edit `audio.min.js`, `drawer.min.js`, `secret.min.js`, or `nexus.min.js` (in `src/js/`) — edit the source `.js` and run `npm run build`. The `universe/nexus.js` file has no built counterpart — edit it directly.
+- Do not confuse `src/css/components/nexus.css` / `src/js/nexus.js` (build-managed, in `src/`) with `universe/nexus.css` / `universe/nexus.js` (edited directly, not built).
+- Do not rename the localStorage keys `bgAudioMuted`, `bgAudioTrack`, `bgAudioVolume`, `promoDrawerOpen`, `timerBar1Start`, `timerBar1End`, `timerBar1Name`, `timerBar1NextDay`, `timerBar2Start`, `timerBar2End`, `timerBar2Name`, or `timerBar2NextDay` without updating the corresponding JS source and all pages that may read them.
 - Do not autoplay with sound — the `<audio>` element must start `muted`. Sound only plays after an explicit user gesture (toggle click).
 - Do not restore the `loop` attribute on `<audio>` — its absence is intentional to allow the `ended` event to fire for auto-advance to the next track.
 - Do not move `assets/audio/` without updating the `src` path in every page's `<audio>` element and the `AUDIO_BASE` constant in `audio.js`.
