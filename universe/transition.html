@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Entering Universe | Azat Yeranosyan</title>
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ZdWYXfepABCVN0ngv/1mJRHhsWzGgCjaUwnyT/6IAvM=' 'sha256-maLEQ8LqyVOcgIKXgVhUlr57t6Rtg88L4MfEc1Isc2s='; style-src 'self' 'unsafe-inline'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'sha256-ZdWYXfepABCVN0ngv/1mJRHhsWzGgCjaUwnyT/6IAvM=' 'sha256-vUc0E1ZIlMkPmAqGd6TTPMqERfmQeTTNQapz9M8ZZaA='; style-src 'self' 'unsafe-inline'">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html, body {
@@ -165,7 +165,7 @@ canvas#warp {
     skipEl.style.color = rgb(hexToOklab ? oklabToHex(hexToOklab(rmFgFrom)) : [120,160,180]);
     /* OKLab dissolve via rAF over ~450ms */
     var rmStart = null;
-    var rmDur = 450;
+    var rmDur = 350;
     var navigated = false;
     function navigate() {
       if (navigated) return;
@@ -267,19 +267,19 @@ canvas#warp {
   }
 
   /* ── timeline ─────────────────────────────────────────────────
-     to=universe (~3.4s total):
-       0.00 – 0.70  Settle:   green glow contracts, stars begin spawning
-       0.55 – 2.10  Ignite:   starfield fades in, palette morphs, glow shrinks
-       2.00 – 3.05  Warp:     stars accelerate, trails stretch, chrAb grows
-       2.95 – 3.40  Arrival:  single bloom rise+fall, decelerate stars, navigate at crest
-     to=home (~3.4s total):
+     to=universe (~2.4s total):
+       0.00 – 0.45  Settle:   green glow contracts, stars begin spawning
+       0.35 – 1.45  Ignite:   starfield fades in, palette morphs, glow shrinks
+       1.40 – 2.15  Warp:     stars accelerate, trails stretch, chrAb grows
+       2.10 – 2.40  Arrival:  single bloom rise+fall ~300ms, navigate at crest
+     to=home (~2.1s total):
        same engine, palette reversed, stars collapse inward, no bloom (gentle settle)
   ───────────────────────────────────────────────────────────────── */
-  var TOTAL  = 3400;
-  var T_IGN  = 550;  /* ignite phase starts */
-  var T_WARP = 2000; /* warp phase starts */
-  var T_BLOM = 2950; /* bloom phase starts */
-  var T_NAV  = 3150; /* navigate at bloom crest */
+  var TOTAL  = 2400;
+  var T_IGN  = 350;  /* ignite phase starts */
+  var T_WARP = 1400; /* warp phase starts */
+  var T_BLOM = 2100; /* bloom phase starts */
+  var T_NAV  = 2300; /* navigate at bloom crest */
 
   var bgEl    = document.getElementById('bg');
   var bloomEl = document.getElementById('bloom');
@@ -367,10 +367,10 @@ canvas#warp {
       return (elapsed - start) / (end - start);
     }
 
-    var tSettle  = easeOut3(phaseT(0, 700));
-    var tIgnite  = easeInOut3(phaseT(T_IGN, 2100));
-    var tWarp    = easeInExpo(phaseT(T_WARP, 3050));
-    var tBloom   = phaseT(T_BLOM, T_BLOM + 400); /* raw 0→1 for bloom envelope */
+    var tSettle  = easeOut3(phaseT(0, 450));
+    var tIgnite  = easeInOut3(phaseT(T_IGN, 1450));
+    var tWarp    = easeInExpo(phaseT(T_WARP, 2150));
+    var tBloom   = phaseT(T_BLOM, T_BLOM + 300); /* raw 0→1 for bloom envelope */
     var tTotal   = Math.min(elapsed / TOTAL, 1);
 
     /* palette t: 0=green, 1=universe */
@@ -380,7 +380,7 @@ canvas#warp {
 
     /* label phases */
     if (!toHome) {
-      if (elapsed < 700)   setLabel('aligning');
+      if (elapsed < 450)   setLabel('aligning');
       else if (elapsed < T_WARP) setLabel('warp charging');
       else if (elapsed < T_BLOM) setLabel('warp');
       else                       setLabel('arrival');
@@ -617,7 +617,7 @@ canvas#warp {
   raf = requestAnimationFrame(drawFrame);
 
   /* safety fallback */
-  setTimeout(navigate, TOTAL + 1200);
+  setTimeout(navigate, TOTAL + 800);
 
 })();
 </script>
