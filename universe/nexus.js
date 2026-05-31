@@ -295,6 +295,11 @@ const flareStreak = new THREE.Sprite(new THREE.SpriteMaterial({
 }));
 flareStreak.scale.set(54, 3.2, 1); sunGrp.add(flareStreak);
 
+// ---- sun hover state ----
+let sunHover = false;
+sunCore.userData.isSun = true;
+sunShell.userData.isSun = true;
+
 // ---- procedural planet texture ----
 function planetTexture(base, accent, bands) {
   const cv = document.createElement('canvas'); cv.width = cv.height = 256; const x = cv.getContext('2d');
@@ -313,11 +318,48 @@ function planetTexture(base, accent, bands) {
 }
 
 // ---- planets ----
+// 6 planets for: Home, CV, Merch, Riot Project, Projects, Contact Me
+// Orbital radii spaced with gaps > (r_a + r_b + label padding ~4)
+// Gaps between adjacent orbits: 12→20→16→18→14 — all exceed largest planet r*2+4
+// Phases evenly distributed: 0, π/3, 2π/3, π, 4π/3, 5π/3
+const TAU = Math.PI * 2;
 const planetDefs = [
-  { name: 'Work',    sub: 'Things I have built',    href: '../src/pages/projects.html',  dist: 26, incl: 0.18,  node: 0.4, phase: 0.6, speed: 0.04,  r: 2.4, base: '#16486e', accent: '#5cc8ff', spin: 0.22, ring: false, tilt: 0.4 },
-  { name: 'About',   sub: 'Who is behind this',     href: '../src/pages/cv.html',         dist: 44, incl: 0.45,  node: 2.1, phase: 2.4, speed: 0.026, r: 3.8, base: '#8a5a1e', accent: '#ffce5e', spin: 0.12, ring: true,  tilt: 0.6 },
-  { name: 'Lab',     sub: 'Works in progress',      href: '../src/pages/merch.html',      dist: 64, incl: -0.3,  node: 4.0, phase: 4.1, speed: 0.016, r: 1.5, base: '#0e5a55', accent: '#3df0d0', spin: 0.34, ring: false, tilt: 0.2 },
-  { name: 'Contact', sub: 'Start a conversation',   href: '../src/pages/contactme.html',  dist: 14, incl: 0.6,   node: 5.2, phase: 1.3, speed: 0.055, r: 2.0, base: '#3a3470', accent: '#9d8cff', spin: 0.18, ring: false, tilt: 0.9 },
+  {
+    name: 'Home',
+    href: './transition.html?to=home',
+    dist: 14, incl: 0.55,  node: 0.3,  phase: 0.0,          speed: 0.055, r: 1.8,
+    base: '#1a3a5c', accent: '#4ad6ff', spin: 0.20, ring: false, tilt: 0.5
+  },
+  {
+    name: 'CV',
+    href: '../src/pages/cv.html',
+    dist: 26, incl: 0.40,  node: 1.8,  phase: TAU / 6,      speed: 0.040, r: 2.2,
+    base: '#8a5a1e', accent: '#ffce5e', spin: 0.15, ring: true,  tilt: 0.6
+  },
+  {
+    name: 'Merch',
+    href: '../src/pages/merch.html',
+    dist: 42, incl: -0.28, node: 3.5,  phase: TAU * 2 / 6,  speed: 0.028, r: 1.6,
+    base: '#0e5a55', accent: '#3df0d0', spin: 0.32, ring: false, tilt: 0.2
+  },
+  {
+    name: 'Riot Project',
+    href: '../src/pages/riotproject.html',
+    dist: 58, incl: 0.50,  node: 5.1,  phase: TAU * 3 / 6,  speed: 0.020, r: 2.8,
+    base: '#4a1a1a', accent: '#ff6060', spin: 0.10, ring: true,  tilt: 0.8
+  },
+  {
+    name: 'Projects',
+    href: '../src/pages/projects.html',
+    dist: 76, incl: 0.22,  node: 0.9,  phase: TAU * 4 / 6,  speed: 0.014, r: 2.4,
+    base: '#16486e', accent: '#5cc8ff', spin: 0.22, ring: false, tilt: 0.4
+  },
+  {
+    name: 'Contact Me',
+    href: '../src/pages/contactme.html',
+    dist: 94, incl: -0.45, node: 2.6,  phase: TAU * 5 / 6,  speed: 0.009, r: 2.0,
+    base: '#3a3470', accent: '#9d8cff', spin: 0.18, ring: false, tilt: 0.9
+  },
 ];
 const labelLayer = document.getElementById('labels');
 const planets = [];
@@ -364,7 +406,7 @@ planetDefs.forEach((d, i) => {
   grp.rotation.z = d.tilt;
 
   const lab = document.createElement('div'); lab.className = 'plabel';
-  lab.innerHTML = `<div class="nm">${d.name}</div><div class="sub">${d.sub}</div>`;
+  lab.innerHTML = `<div class="nm">${d.name}</div>`;
   labelLayer.appendChild(lab);
   planets.push({ ...d, plane, pivot, grp, mesh, glow, ringLine, lab, lit: 0, angle: d.phase });
 });
@@ -372,7 +414,7 @@ planetDefs.forEach((d, i) => {
 // ---- orbit camera ----
 const target = new THREE.Vector3(0, 0, 0);
 let theta = 0.6, phi = Math.PI / 2;
-let R = 78, targetR = 78;
+let R = 90, targetR = 90;
 let velT = 0, velP = 0;
 let dragging = false, downX = 0, downY = 0, lastX = 0, lastY = 0, moved = 0, downTime = 0;
 const PHI_MIN = 0.18, PHI_MAX = Math.PI - 0.18;
@@ -389,6 +431,14 @@ function applyCamera() {
 
 const ray = new THREE.Raycaster();
 const ndc = new THREE.Vector2();
+
+function pickSun(cx, cy) {
+  ndc.x = (cx / innerWidth) * 2 - 1; ndc.y = -(cy / innerHeight) * 2 + 1;
+  ray.setFromCamera(ndc, camera);
+  const hits = ray.intersectObject(sunCore);
+  return hits.length > 0;
+}
+
 function pick(cx, cy) {
   ndc.x = (cx / innerWidth) * 2 - 1; ndc.y = -(cy / innerHeight) * 2 + 1;
   ray.setFromCamera(ndc, camera);
@@ -396,7 +446,7 @@ function pick(cx, cy) {
   return hits.length ? hits[0].object.userData.index : -1;
 }
 
-let hover = -1, warp = false, warpTo = null;
+let hover = -1, warp = false, warpTo = null, warpSun = false;
 canvas.addEventListener('pointerdown', e => {
   dragging = true; downX = lastX = e.clientX; downY = lastY = e.clientY; moved = 0; downTime = performance.now();
   velT = velP = 0; ring.classList.add('drag');
@@ -410,8 +460,12 @@ addEventListener('pointermove', e => {
     phi = Math.max(PHI_MIN, Math.min(PHI_MAX, phi));
     velT = -dx * 0.005; velP = -dy * 0.005;
   } else if (!warp) {
-    hover = pick(e.clientX, e.clientY);
-    ring.classList.toggle('hot', hover >= 0);
+    const pIdx = pick(e.clientX, e.clientY);
+    const onSun = pickSun(e.clientX, e.clientY);
+    hover = pIdx;
+    sunHover = onSun;
+    ring.classList.toggle('hot', pIdx >= 0 || onSun);
+    canvas.style.cursor = (pIdx >= 0 || onSun) ? 'pointer' : '';
   }
 });
 addEventListener('pointerup', e => {
@@ -419,11 +473,15 @@ addEventListener('pointerup', e => {
   const quick = performance.now() - downTime < 350;
   if (dragging && moved < 8 && quick) {
     const idx = pick(e.clientX, e.clientY);
-    if (idx >= 0) enter(idx);
+    if (idx >= 0) {
+      enter(idx);
+    } else if (pickSun(e.clientX, e.clientY)) {
+      enterSun();
+    }
   }
   dragging = false;
 });
-addEventListener('wheel', e => { targetR = Math.max(16, Math.min(140, targetR + e.deltaY * 0.03)); }, { passive: true });
+addEventListener('wheel', e => { targetR = Math.max(16, Math.min(160, targetR + e.deltaY * 0.03)); }, { passive: true });
 
 function enter(idx) {
   warpTo = planets[idx];
@@ -432,6 +490,14 @@ function enter(idx) {
   planets.forEach(p => { if (p !== warpTo) p.lab.style.opacity = 0; });
   setTimeout(() => { warp = true; }, 180);
   setTimeout(() => { window.location.href = warpTo.href; }, 1100);
+}
+
+function enterSun() {
+  warpSun = true;
+  document.getElementById('hud').classList.add('zooming');
+  planets.forEach(p => { p.lab.style.opacity = 0; });
+  setTimeout(() => { warp = true; }, 180);
+  setTimeout(() => { window.location.href = '../src/pages/secret.html'; }, 1100);
 }
 
 // ---- project labels to screen ----
@@ -492,9 +558,18 @@ function animate() {
 
   sunMat.uniforms.uTime.value = t;
   sunCore.rotation.y = t * 0.03 * SYS;
+
+  // sun hover: subtle scale glow
+  const sunGoal = sunHover && !warp ? 1.06 : 1.0;
+  sunCore.scale.x += (sunGoal - sunCore.scale.x) * 0.1;
+  sunCore.scale.y = sunCore.scale.z = sunCore.scale.x;
+  sunShell.scale.copy(sunCore.scale);
+
   sunGrp.children.forEach(ch => {
     if (ch.isSprite && ch.userData.corona) {
-      const b = ch.userData.base, o = ch.userData.o, k = 1 + Math.sin(t * 1.2 + b) * 0.05;
+      const b = ch.userData.base, o = ch.userData.o;
+      const hoverBoost = sunHover && !warp ? 1.12 : 1.0;
+      const k = (1 + Math.sin(t * 1.2 + b) * 0.05) * hoverBoost;
       ch.scale.set(b * k, b * k, 1); ch.material.opacity = o * (0.92 + Math.sin(t * 0.9 + b) * 0.08);
     }
   });
@@ -511,8 +586,10 @@ function animate() {
   }
   if (warp) {
     targetR = Math.max(3, targetR - 2);
-    const wp = new THREE.Vector3(); warpTo.grp.getWorldPosition(wp);
-    target.lerp(wp, 0.04);
+    if (warpTo) {
+      const wp = new THREE.Vector3(); warpTo.grp.getWorldPosition(wp);
+      target.lerp(wp, 0.04);
+    }
   }
 
   applyCamera(); updateLabels();
