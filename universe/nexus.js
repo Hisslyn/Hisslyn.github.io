@@ -318,46 +318,41 @@ function planetTexture(base, accent, bands) {
 }
 
 // ---- planets ----
-// 6 planets for: Home, CV, Merch, Riot Project, Projects, Contact Me
+// 5 planets for: CV, Merch, Riot Project, Projects, Contact Me
+// Home is a fixed DOM button (top-left). Sun -> secret.html. Universe excluded (current page).
 // Orbital radii spaced with gaps > (r_a + r_b + label padding ~4)
-// Gaps between adjacent orbits: 12→20→16→18→14 — all exceed largest planet r*2+4
-// Phases evenly distributed: 0, π/3, 2π/3, π, 4π/3, 5π/3
+// Gaps between adjacent orbits: 14→18→16→20 — all exceed largest planet r*2+4
+// Phases staggered by TAU/5 (72°) to avoid clustering
 const TAU = Math.PI * 2;
 const planetDefs = [
   {
-    name: 'Home',
-    href: './transition.html?to=home',
-    dist: 14, incl: 0.55,  node: 0.3,  phase: 0.0,          speed: 0.055, r: 1.8,
-    base: '#1a3a5c', accent: '#4ad6ff', spin: 0.20, ring: false, tilt: 0.5
-  },
-  {
     name: 'CV',
     href: '../src/pages/cv.html',
-    dist: 26, incl: 0.40,  node: 1.8,  phase: TAU / 6,      speed: 0.040, r: 2.2,
+    dist: 18, incl: 0.40,  node: 1.8,  phase: 0.0,           speed: 0.048, r: 2.2,
     base: '#8a5a1e', accent: '#ffce5e', spin: 0.15, ring: true,  tilt: 0.6
   },
   {
     name: 'Merch',
     href: '../src/pages/merch.html',
-    dist: 42, incl: -0.28, node: 3.5,  phase: TAU * 2 / 6,  speed: 0.028, r: 1.6,
+    dist: 32, incl: -0.28, node: 3.5,  phase: TAU / 5,       speed: 0.032, r: 1.6,
     base: '#0e5a55', accent: '#3df0d0', spin: 0.32, ring: false, tilt: 0.2
   },
   {
     name: 'Riot Project',
     href: '../src/pages/riotproject.html',
-    dist: 58, incl: 0.50,  node: 5.1,  phase: TAU * 3 / 6,  speed: 0.020, r: 2.8,
+    dist: 50, incl: 0.50,  node: 5.1,  phase: TAU * 2 / 5,   speed: 0.022, r: 2.8,
     base: '#4a1a1a', accent: '#ff6060', spin: 0.10, ring: true,  tilt: 0.8
   },
   {
     name: 'Projects',
     href: '../src/pages/projects.html',
-    dist: 76, incl: 0.22,  node: 0.9,  phase: TAU * 4 / 6,  speed: 0.014, r: 2.4,
+    dist: 70, incl: 0.22,  node: 0.9,  phase: TAU * 3 / 5,   speed: 0.015, r: 2.4,
     base: '#16486e', accent: '#5cc8ff', spin: 0.22, ring: false, tilt: 0.4
   },
   {
     name: 'Contact Me',
     href: '../src/pages/contactme.html',
-    dist: 94, incl: -0.45, node: 2.6,  phase: TAU * 5 / 6,  speed: 0.009, r: 2.0,
+    dist: 90, incl: -0.45, node: 2.6,  phase: TAU * 4 / 5,   speed: 0.010, r: 2.0,
     base: '#3a3470', accent: '#9d8cff', spin: 0.18, ring: false, tilt: 0.9
   },
 ];
