@@ -387,6 +387,7 @@ Language icons in translate.html use `role="button"` + `tabindex="0"` with keybo
 - **`drawer-promo.webp`** — present in `assets/images/` but not referenced by any page. Only `Hire_me.gif` is used by the drawer.
 - **`fonts.min.css`** — present in `src/css/` but not referenced by any page (not produced by `npm run build`; appears to be a leftover artifact).
 - **`side kick/`** — self-contained experimental prototype (Three.js solar-system navigation). Not linked from any page in `src/pages/`, not built by `npm run build`, and has its own external CDN dependencies (Google Fonts, cdnjs three.js r128) that would violate the main site's `default-src 'self'` CSP. Planet `href` values (`page1.html`–`page4.html`) are placeholders. Keep it isolated from the main site unless deliberately integrated with a matching CSP update.
+- **`universe/`** — the production "Universe" dimension (relocated and wired NEXUS scene). See the `universe/ dimension` section below.
 
 ---
 
@@ -432,6 +433,33 @@ Pages in `src/pages/` reference JS with `../js/...` (one level up).
 Data JSON files are referenced from JS as `../../data/{lang}.json` and `../../data/tracks.json`.
 
 Do not change this path structure without updating all references.
+
+---
+
+## universe/ dimension
+
+`universe/` is an **intentionally isolated** dimension — a Three.js solar-system scene reached from the home page "Universe" option box.
+
+**Entry points:** `src/pages/index.html` top nav and nav-box both link to `../../universe/transition.html?to=universe`.
+
+**Files:**
+- `universe/transition.html` — standalone portal/loading page. Direction-aware via `?to=` query param:
+  - `?to=universe` (default): morphs site green palette (`#081c15` bg, `#18b96e` accent) → universe palette (`#050814` bg, `#4ad6ff`/`#a78bff` accents) over ~3 s, then navigates to `./index.html`.
+  - `?to=home`: writes `localStorage.setItem('bgAudioMuted','true')` first (so main site loads muted with 🔇), then morphs universe → green over ~3 s, then navigates to `../src/pages/index.html`.
+  - Fully standalone: no CDN, no shared CSS/JS, CSP `default-src 'self'; script-src 'sha256-...'` (hash of the inline direction script). Includes a visible "Skip" link pointing at the correct destination. Respects `prefers-reduced-motion` (instant redirect, still writes mute key when `to=home`).
+- `universe/index.html` — the NEXUS Three.js scene. Title "Universe | Azat Yeranosyan". Has its own scoped CSP permitting `fonts.googleapis.com`, `fonts.gstatic.com`, `cdnjs.cloudflare.com` (three.js r128), and a sha256 hash for the single inline `localStorage.setItem('bgAudioMuted','true')` script that runs on load. Planets link to real site pages via `../src/pages/...`. Has a "← Home" link to `./transition.html?to=home`.
+- `universe/nexus.css` — styles for the NEXUS scene (dark space theme, custom cursor, Syne font). Not part of the main build.
+- `universe/nexus.js` — Three.js scene logic. Not part of the main build, not minified.
+
+**bgAudioMuted cross-boundary touch:** `universe/index.html` and `transition.html?to=home` both write `localStorage.setItem('bgAudioMuted','true')`. This is the single intentional cross-boundary touch — using the documented key so the main site's audio.js reads it on load and shows the 🔇 icon automatically. No shared code.
+
+**Rules — do NOT:**
+- Do not fold `universe/` into `npm run build` or `styles.css`.
+- Do not apply the main site's `default-src 'self'` CSP to `universe/index.html` — it legitimately loads CDN resources.
+- Do not add the main site's audio cluster or drawer to any `universe/` page.
+- Do not treat `universe/nexus.js` as a built artifact — edit it directly (no `.min.js` counterpart).
+- If the inline scripts in `universe/index.html` or `universe/transition.html` change, recompute and update the sha256 in the respective CSP meta tag.
+- `side kick/` is the original prototype — leave it untouched. `universe/` is the integrated copy.
 
 ---
 
