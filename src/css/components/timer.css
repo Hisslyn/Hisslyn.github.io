@@ -1,0 +1,498 @@
+/* timer.css — two-bar countdown page, neon-green theme */
+
+/* ── Page layout ─────────────────────────────────────────── */
+.timer-page {
+    min-height: calc(100vh - 125px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2.5rem 1.25rem;
+}
+
+.timer-page h1 {
+    font-family: var(--font-code);
+    color: var(--neon-green);
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 0.25rem;
+    text-align: center;
+}
+
+/* ── Card panel ──────────────────────────────────────────── */
+.timer-bar-wrapper {
+    width: 100%;
+    max-width: 680px;
+    background: var(--background-color);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 1.5rem 1.75rem 1.625rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    box-shadow:
+        0 0 0 1px rgba(24, 185, 110, 0.06),
+        0 2px 12px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(24, 185, 110, 0.05);
+    transition:
+        box-shadow 220ms cubic-bezier(.22,.61,.36,1),
+        transform 220ms cubic-bezier(.22,.61,.36,1);
+    /* stagger entrance */
+    opacity: 0;
+    transform: translateY(14px);
+    animation: timerCardIn 320ms cubic-bezier(.22,.61,.36,1) both;
+}
+
+.timer-bar-wrapper:nth-child(2) { animation-delay: 60ms; }
+.timer-bar-wrapper:nth-child(3) { animation-delay: 150ms; }
+
+@keyframes timerCardIn {
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.timer-bar-wrapper:hover {
+    box-shadow:
+        0 0 0 1px rgba(24, 185, 110, 0.14),
+        0 4px 20px rgba(0, 0, 0, 0.45),
+        0 0 18px rgba(24, 185, 110, 0.08),
+        inset 0 1px 0 rgba(24, 185, 110, 0.08);
+    transform: translateY(-2px);
+}
+
+/* ── Bar name / label ────────────────────────────────────── */
+.timer-bar-label {
+    font-family: var(--font-code);
+    color: var(--text-body);
+    font-size: clamp(0.7rem, 1.5vw, 0.82rem);
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    cursor: text;
+    display: block;
+    text-align: center;
+    border-bottom: 1px dotted transparent;
+    padding-bottom: 1px;
+    transition: border-color 160ms ease, color 160ms ease;
+    outline: none;
+}
+
+.timer-bar-label:hover {
+    border-color: var(--text-muted);
+    color: var(--text-muted);
+}
+
+.timer-bar-label:focus-visible {
+    border-color: var(--neon-green);
+    color: var(--neon-green);
+    box-shadow: 0 1px 0 var(--neon-green);
+}
+
+/* ── Time row ────────────────────────────────────────────── */
+.timer-time-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: var(--font-code);
+}
+
+.timer-time-row label {
+    color: var(--text-muted);
+    font-size: clamp(0.72rem, 1.4vw, 0.82rem);
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    user-select: none;
+}
+
+/* ── Hero % display ──────────────────────────────────────── */
+.timer-pct {
+    margin-left: auto;
+    font-family: var(--font-code);
+    font-size: clamp(1.25rem, 3.5vw, 1.9rem);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--neon-green);
+    min-width: 8ch;
+    text-align: right;
+    line-height: 1;
+    transition: color 500ms cubic-bezier(.22,.61,.36,1);
+    will-change: color;
+}
+
+/* subtle number transition */
+.timer-pct.pct-changing {
+    animation: timerPctRoll 160ms cubic-bezier(.22,.61,.36,1) both;
+}
+
+@keyframes timerPctRoll {
+    0%  { opacity: 0.5; transform: scale(0.94); }
+    100%{ opacity: 1;   transform: scale(1); }
+}
+
+/* ── Time inputs ─────────────────────────────────────────── */
+.timer-time-input {
+    background: var(--background-dark);
+    color: var(--neon-green);
+    border: 1px solid var(--border-light);
+    border-radius: 5px;
+    font-family: var(--font-code);
+    font-size: clamp(0.88rem, 2vw, 1rem);
+    font-variant-numeric: tabular-nums;
+    padding: 0.45rem 0.55rem;
+    width: 5.8ch;
+    min-height: 44px;
+    text-align: center;
+    letter-spacing: 0.06em;
+    transition:
+        border-color 180ms cubic-bezier(.22,.61,.36,1),
+        box-shadow 180ms cubic-bezier(.22,.61,.36,1),
+        color 180ms cubic-bezier(.22,.61,.36,1);
+    caret-color: var(--neon-green);
+    cursor: text;
+    /* subtle dotted edit affordance */
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: transparent;
+    text-underline-offset: 3px;
+}
+
+.timer-time-input:hover {
+    border-color: var(--text-muted);
+    text-decoration-color: var(--text-muted);
+}
+
+.timer-time-input:focus-visible {
+    outline: 2px solid var(--neon-green);
+    outline-offset: 2px;
+    border-color: var(--neon-green);
+    box-shadow: 0 0 0 4px rgba(24, 185, 110, 0.15);
+    text-decoration-color: transparent;
+}
+
+.timer-time-sep {
+    color: var(--text-muted);
+    font-size: clamp(0.8rem, 1.8vw, 0.95rem);
+    user-select: none;
+}
+
+/* gentle shake on invalid */
+.timer-time-input.timer-shake {
+    animation: timerShake 260ms cubic-bezier(.22,.61,.36,1);
+}
+
+@keyframes timerShake {
+    0%   { transform: translateX(0); }
+    20%  { transform: translateX(-4px); }
+    50%  { transform: translateX(4px); }
+    75%  { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+.timer-time-input[data-invalid="true"] {
+    border-color: rgba(210, 140, 40, 0.7);
+    color: #d4a017;
+    box-shadow: 0 0 0 3px rgba(212, 160, 23, 0.12);
+}
+
+/* inline hint */
+.timer-hint {
+    font-family: var(--font-code);
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    margin-top: -0.25rem;
+    min-height: 1em;
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+.timer-hint.visible {
+    opacity: 1;
+}
+
+/* ── Next day checkbox ───────────────────────────────────── */
+.timer-nextday-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    user-select: none;
+    font-family: var(--font-code);
+    font-size: clamp(0.68rem, 1.3vw, 0.78rem);
+    color: var(--text-muted);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    min-height: 44px;
+    padding: 0 0.15rem;
+    transition: color 160ms ease;
+}
+
+.timer-nextday-label:hover {
+    color: var(--text-body);
+}
+
+.timer-nextday-cb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    border: 1.5px solid var(--border-light);
+    border-radius: 3px;
+    background: var(--background-dark);
+    cursor: pointer;
+    position: relative;
+    transition:
+        border-color 160ms ease,
+        background 160ms ease,
+        box-shadow 160ms ease;
+}
+
+.timer-nextday-cb:checked {
+    background: var(--neon-green);
+    border-color: var(--neon-green);
+}
+
+.timer-nextday-cb:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 1px;
+    width: 6px;
+    height: 9px;
+    border: 2px solid var(--background-dark);
+    border-top: none;
+    border-left: none;
+    transform: rotate(45deg);
+    animation: timerCheckAppear 160ms cubic-bezier(.22,.61,.36,1) both;
+}
+
+@keyframes timerCheckAppear {
+    from { opacity: 0; transform: rotate(45deg) scale(0.6); }
+    to   { opacity: 1; transform: rotate(45deg) scale(1); }
+}
+
+.timer-nextday-cb:focus-visible {
+    outline: 2px solid var(--neon-green);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(24, 185, 110, 0.15);
+}
+
+/* ── Progress track ──────────────────────────────────────── */
+.timer-track {
+    position: relative;
+    width: 100%;
+    height: 20px;
+    background: var(--background-dark);
+    border-radius: 10px;
+    border: 1px solid var(--border-light);
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.5),
+        0 0 6px rgba(24, 185, 110, 0.08);
+    overflow: hidden;
+    cursor: default;
+    transition: box-shadow 500ms cubic-bezier(.22,.61,.36,1);
+}
+
+/* ── Fill ────────────────────────────────────────────────── */
+.timer-fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    height: 100%;
+    background: linear-gradient(90deg, #0e7a45 0%, var(--neon-green) 100%);
+    border-radius: 10px;
+    width: 0%;
+    transition: width 280ms cubic-bezier(.22,.61,.36,1);
+    will-change: width;
+}
+
+/* load-in: animate from 0 to actual value handled by JS adding .timer-fill--animated */
+.timer-fill.timer-fill--entering {
+    transition: width 900ms cubic-bezier(.22,.61,.36,1);
+}
+
+/* slow ambient shimmer sweeping across fill */
+.timer-fill::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        100deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.07) 45%,
+        rgba(255, 255, 255, 0.13) 50%,
+        rgba(255, 255, 255, 0.07) 55%,
+        transparent 80%
+    );
+    background-size: 200% 100%;
+    animation: timerShimmer 3.2s cubic-bezier(.4,0,.6,1) infinite;
+}
+
+@keyframes timerShimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* leading-edge bloom */
+.timer-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5px;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.65);
+    border-radius: 0 10px 10px 0;
+    box-shadow: 0 0 10px 4px var(--neon-green);
+    animation: timerEdgePulse 1.8s ease-in-out infinite;
+}
+
+@keyframes timerEdgePulse {
+    0%, 100% { opacity: 0.85; }
+    50%       { opacity: 0.35; }
+}
+
+/* ── Urgency (<15% left) ─────────────────────────────────── */
+.timer-bar-wrapper[data-urgency="true"] .timer-fill {
+    background: linear-gradient(90deg, #7a5800 0%, #d4a017 100%);
+}
+
+.timer-bar-wrapper[data-urgency="true"] .timer-fill::after {
+    box-shadow: 0 0 10px 4px #d4a017;
+}
+
+.timer-bar-wrapper[data-urgency="true"] .timer-track {
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.5),
+        0 0 12px rgba(212, 160, 23, 0.25);
+}
+
+.timer-bar-wrapper[data-urgency="true"] .timer-pct {
+    color: #d4a017;
+}
+
+/* ── Done state ──────────────────────────────────────────── */
+.timer-bar-wrapper[data-done="true"] .timer-fill {
+    background: var(--neon-green);
+    transition: width 280ms cubic-bezier(.22,.61,.36,1);
+}
+
+.timer-bar-wrapper[data-done="true"] .timer-fill::before {
+    animation: none;
+    background: none;
+}
+
+.timer-bar-wrapper[data-done="true"] .timer-fill::after {
+    display: none;
+}
+
+.timer-bar-wrapper[data-done="true"] .timer-pct {
+    color: var(--neon-green);
+}
+
+.timer-bar-wrapper[data-done="true"] .timer-track {
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.4),
+        0 0 10px rgba(24, 185, 110, 0.3);
+}
+
+/* one-time completion pulse on wrapper */
+.timer-bar-wrapper.timer-done-pulse {
+    animation: timerDonePulse 600ms cubic-bezier(.22,.61,.36,1) 1;
+}
+
+@keyframes timerDonePulse {
+    0%   { box-shadow: 0 0 0 1px rgba(24,185,110,.06), 0 2px 12px rgba(0,0,0,.35), inset 0 1px 0 rgba(24,185,110,.05); }
+    40%  { box-shadow: 0 0 0 3px rgba(24,185,110,.3),  0 4px 24px rgba(0,0,0,.5), 0 0 30px rgba(24,185,110,.2), inset 0 1px 0 rgba(24,185,110,.1); }
+    100% { box-shadow: 0 0 0 1px rgba(24,185,110,.06), 0 2px 12px rgba(0,0,0,.35), inset 0 1px 0 rgba(24,185,110,.05); }
+}
+
+/* ── Upcoming state ──────────────────────────────────────── */
+.timer-bar-wrapper[data-upcoming="true"] .timer-fill {
+    width: 0% !important;
+    opacity: 0.25;
+    transition: none;
+}
+
+.timer-bar-wrapper[data-upcoming="true"] .timer-fill::before,
+.timer-bar-wrapper[data-upcoming="true"] .timer-fill::after {
+    display: none;
+}
+
+.timer-bar-wrapper[data-upcoming="true"] .timer-pct {
+    color: var(--text-muted);
+    font-size: clamp(0.88rem, 2.5vw, 1.15rem);
+    font-weight: 400;
+}
+
+/* ── Reduced-motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+    .timer-bar-wrapper {
+        animation: none;
+        opacity: 1;
+        transform: none;
+    }
+    .timer-bar-wrapper:hover {
+        transform: none;
+    }
+    .timer-fill {
+        transition: width 80ms linear;
+    }
+    .timer-fill.timer-fill--entering {
+        transition: width 80ms linear;
+    }
+    .timer-fill::before,
+    .timer-fill::after {
+        animation: none;
+    }
+    .timer-bar-wrapper.timer-done-pulse {
+        animation: none;
+    }
+    .timer-time-input {
+        transition: border-color 80ms linear, box-shadow 80ms linear;
+    }
+    .timer-time-input.timer-shake {
+        animation: none;
+    }
+    .timer-pct {
+        transition: color 80ms linear;
+    }
+    .timer-pct.pct-changing {
+        animation: none;
+    }
+    .timer-track {
+        transition: none;
+    }
+    .timer-bar-label {
+        transition: none;
+    }
+    .timer-hint {
+        transition: none;
+    }
+    .timer-nextday-cb,
+    .timer-nextday-label {
+        transition: none;
+    }
+    .timer-nextday-cb:checked::after {
+        animation: none;
+    }
+}
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 720px) {
+    .timer-bar-wrapper {
+        padding: 1.25rem 1.25rem 1.375rem;
+    }
+    .timer-time-row {
+        flex-wrap: wrap;
+        gap: 0.4rem;
+    }
+    .timer-pct {
+        margin-left: 0;
+        width: 100%;
+        text-align: left;
+    }
+    .timer-page {
+        padding: 1.5rem 0.875rem;
+    }
+}

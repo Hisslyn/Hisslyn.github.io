@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer | Azat Yeranosyan</title>
+    <meta name="description" content="Two-bar countdown timer for Azat Yeranosyan's personal site.">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+    <link rel="stylesheet" href="../css/styles.min.css">
+    <link rel="stylesheet" href="../css/components/timer.min.css">
+</head>
+<body>
+    <a href="#main-content" class="skip-link">Skip to content</a>
+    <header class="dark-header">
+        <div class="logo-container">
+            <a href="index.html">
+                <img src="../../assets/images/logo.webp" alt="Azat Yeranosyan – home" class="logo" width="100" height="100">
+            </a>
+        </div>
+        <nav aria-label="Main navigation">
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="cv.html">CV</a></li>
+                <li><a href="merch.html">Merch</a></li>
+                <li><a href="riotproject.html">Riot Project</a></li>
+                <li><a href="projects.html">Projects</a></li>
+                <li><a href="contactme.html">Contact Me</a></li>
+                <li><a href="secret.html">Super Secret</a></li>
+                <li><a href="../../universe/transition.html?to=universe">Universe</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main id="main-content" class="timer-page">
+        <h1>Countdown</h1>
+
+        <!-- Bar 1 -->
+        <div class="timer-bar-wrapper" id="timer-bar-1" data-done="false" data-upcoming="false" data-urgency="false">
+            <div class="timer-bar-label" tabindex="0">Diana</div>
+            <div class="timer-time-row">
+                <label for="timer-start-1">Start</label>
+                <input
+                    class="timer-time-input"
+                    id="timer-start-1"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="5"
+                    placeholder="HH:MM"
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-label="Bar 1 start time (HH:MM)"
+                >
+                <span class="timer-time-sep" aria-hidden="true">→</span>
+                <label for="timer-end-1">End</label>
+                <input
+                    class="timer-time-input"
+                    id="timer-end-1"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="5"
+                    placeholder="HH:MM"
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-label="Bar 1 end time (HH:MM)"
+                >
+                <label class="timer-nextday-label" for="timer-nextday-1">
+                    <input class="timer-nextday-cb" id="timer-nextday-1" type="checkbox" aria-label="Bar 1 end is next day">
+                    <span>Next day</span>
+                </label>
+                <span class="timer-pct" id="timer-pct-1" aria-hidden="true">—</span>
+            </div>
+            <div
+                class="timer-track"
+                id="timer-track-1"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="100"
+                aria-valuetext="100% remaining"
+                aria-label="Bar 1 time remaining"
+            >
+                <div class="timer-fill" id="timer-fill-1"></div>
+            </div>
+        </div>
+
+        <!-- Bar 2 -->
+        <div class="timer-bar-wrapper" id="timer-bar-2" data-done="false" data-upcoming="false" data-urgency="false">
+            <div class="timer-bar-label" tabindex="0">Azat</div>
+            <div class="timer-time-row">
+                <label for="timer-start-2">Start</label>
+                <input
+                    class="timer-time-input"
+                    id="timer-start-2"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="5"
+                    placeholder="HH:MM"
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-label="Bar 2 start time (HH:MM)"
+                >
+                <span class="timer-time-sep" aria-hidden="true">→</span>
+                <label for="timer-end-2">End</label>
+                <input
+                    class="timer-time-input"
+                    id="timer-end-2"
+                    type="text"
+                    inputmode="numeric"
+                    maxlength="5"
+                    placeholder="HH:MM"
+                    autocomplete="off"
+                    spellcheck="false"
+                    aria-label="Bar 2 end time (HH:MM)"
+                >
+                <label class="timer-nextday-label" for="timer-nextday-2">
+                    <input class="timer-nextday-cb" id="timer-nextday-2" type="checkbox" aria-label="Bar 2 end is next day">
+                    <span>Next day</span>
+                </label>
+                <span class="timer-pct" id="timer-pct-2" aria-hidden="true">—</span>
+            </div>
+            <div
+                class="timer-track"
+                id="timer-track-2"
+                role="progressbar"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="100"
+                aria-valuetext="100% remaining"
+                aria-label="Bar 2 time remaining"
+            >
+                <div class="timer-fill" id="timer-fill-2"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 Azat Yeranosyan | Built with HTML &amp; CSS</p>
+    </footer>
+
+    <audio id="bg-audio" muted playsinline preload="auto">
+        <source src="../../assets/audio/Cosmic_Hippo_lavender.mp3" type="audio/mpeg">
+    </audio>
+    <button id="audio-toggle" type="button" aria-label="Unmute background music" aria-pressed="false">🔇</button>
+    <button id="audio-volume" type="button" aria-label="Volume 10 percent, click to change">10%</button>
+    <button id="audio-next" type="button" aria-label="Next track">⏭</button>
+    <script src="../js/audio.min.js" defer></script>
+
+    <div class="drawer" id="promo-drawer">
+        <div id="drawer-panel" class="drawer__panel">
+            <a href="cv.html"><img src="../../assets/images/Hire_me.gif" alt="Hire me" width="220" height="218" loading="lazy"></a>
+        </div>
+        <button id="drawer-toggle" class="drawer__toggle" type="button" aria-expanded="false" aria-controls="drawer-panel" aria-label="Open promo panel">&gt;</button>
+    </div>
+    <script src="../js/drawer.min.js" defer></script>
+
+    <script src="../js/timer.min.js" defer></script>
+</body>
+</html>
