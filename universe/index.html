@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Universe | Azat Yeranosyan</title>
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' https://cdnjs.cloudflare.com 'sha256-ykMXiZRV+8U7YfzZzwFd/KSGIUVDFL1NVm6Je961K14='; connect-src 'self'">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./nexus.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div class="atmos"></div>
+  <div class="grain"></div>
+
+  <div class="hud" id="hud">
+    <div class="eyebrow">Enter the system</div>
+    <h1 id="title"></h1>
+    <p class="tagline">Everything I make orbits one idea. <b>Pick a world and land on it.</b></p>
+  </div>
+  <div class="labels" id="labels"></div>
+  <div class="hint">Drag to orbit &nbsp;·&nbsp; scroll to zoom &nbsp;·&nbsp; click a world to enter</div>
+
+  <a href="./transition.html?to=home" class="home-link" aria-label="Back to home">&#8592; Home</a>
+
+  <div class="cursor"></div>
+  <div class="cursor-ring"></div>
+
+<script>localStorage.setItem('bgAudioMuted','true');</script>
+<script src="./nexus.js"></script>
+</body>
+</html>

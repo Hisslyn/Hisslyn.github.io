@@ -3,37 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Request Submitted | Azat Yeranosyan</title>
-    <meta name="description" content="Your translation request has been submitted successfully.">
+    <title>Universe | Azat Yeranosyan</title>
+    <meta name="description" content="Explore the universe of Azat Yeranosyan's work — an interactive 3D solar system.">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
-    <link rel="stylesheet" href="../css/components/translate.min.css">
+    <link rel="stylesheet" href="../css/styles.min.css">
+    <link rel="stylesheet" href="../css/components/nexus.min.css">
 </head>
 <body>
     <a href="#main-content" class="skip-link">Skip to content</a>
+
+    <canvas id="scene"></canvas>
+
     <main id="main-content">
-        <nav aria-label="Main navigation">
-            <ul class="nav-links">
-                <li><a href="index.html">Home</a></li>
-                <li><a href="cv.html">CV</a></li>
-                <li><a href="merch.html">Merch</a></li>
-                <li><a href="riotproject.html">Riot Project</a></li>
-                <li><a href="projects.html">Projects</a></li>
-                <li><a href="contactme.html">Contact Me</a></li>
-                <li><a href="secret.html">Super Secret</a></li>
-                <li><a href="../../universe/transition.html?to=universe">Universe</a></li>
-            </ul>
-        </nav>
-        <section id="submitted">
-            <h1>Request Submitted</h1>
-            <p>Your translation request has been submitted successfully.</p>
-            <p>We will contact you shortly to discuss the details.</p>
-            <a href="translate.html">← Back to Translation Services</a>
-        </section>
+        <div class="atmos"></div>
+        <div class="grain"></div>
+
+        <div class="hud" id="hud">
+            <div class="eyebrow">Enter the system</div>
+            <h1 id="title"></h1>
+            <p class="tagline">Everything I make orbits one idea. <b>Pick a world and land on it.</b></p>
+        </div>
+        <div class="labels" id="labels"></div>
+        <div class="hint">Drag to orbit &nbsp;·&nbsp; scroll to zoom &nbsp;·&nbsp; click a world to enter</div>
+
+        <a href="index.html" class="nexus-home" aria-label="Back to home">← Home</a>
     </main>
-    <footer>
-        <p>© 2026 Azat Yeranosyan | Built with HTML &amp; CSS</p>
-    </footer>
+
+    <div class="cursor" aria-hidden="true"></div>
+    <div class="cursor-ring" aria-hidden="true"></div>
+
     <audio id="bg-audio" muted playsinline preload="auto">
         <source src="../../assets/audio/Cosmic_Hippo_lavender.mp3" type="audio/mpeg">
     </audio>
@@ -41,6 +40,7 @@
     <button id="audio-volume" type="button" aria-label="Volume 10 percent, click to change">10%</button>
     <button id="audio-next" type="button" aria-label="Next track">⏭</button>
     <script src="../js/audio.min.js" defer></script>
+
     <div class="drawer" id="promo-drawer">
         <div id="drawer-panel" class="drawer__panel">
             <a href="cv.html"><img src="../../assets/images/Hire_me.gif" alt="Hire me" width="220" height="218" loading="lazy"></a>
@@ -48,5 +48,8 @@
         <button id="drawer-toggle" class="drawer__toggle" type="button" aria-expanded="false" aria-controls="drawer-panel" aria-label="Open promo panel">&gt;</button>
     </div>
     <script src="../js/drawer.min.js" defer></script>
+
+    <script src="../js/vendor/three.min.js"></script>
+    <script src="../js/nexus.min.js" defer></script>
 </body>
 </html>
