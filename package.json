@@ -4,7 +4,7 @@
   "description": "Personal portfolio website",
   "scripts": {
     "build": "npm run minify:css && npm run minify:js",
-    "minify:css": "cleancss -o src/css/styles.min.css src/css/fonts.css src/css/styles.css && cleancss -o src/css/components/translate.min.css src/css/components/translate.css && cleancss -o src/css/components/nexus.min.css src/css/components/nexus.css && cleancss -o src/css/components/timer.min.css src/css/components/timer.css",
+    "minify:css": "cleancss -o src/css/styles.min.css src/css/fonts.css src/css/styles.css && cleancss -o src/css/components/translate.min.css src/css/components/translate.css && cleancss -o src/css/components/nexus.min.css src/css/components/nexus.css && cleancss -o src/css/components/timer.min.css src/css/components/timer.css && cleancss -o src/css/components/anonymous.min.css src/css/components/anonymous.css",
     "minify:js": "terser src/js/lang.js -o src/js/lang.min.js -c -m && terser src/js/audio.js -o src/js/audio.min.js -c -m && terser src/js/drawer.js -o src/js/drawer.min.js -c -m && terser src/js/secret.js -o src/js/secret.min.js -c -m && terser src/js/nexus.js -o src/js/nexus.min.js -c -m && terser src/js/timer.js -o src/js/timer.min.js -c -m"
   },
   "devDependencies": {
