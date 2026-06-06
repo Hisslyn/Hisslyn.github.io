@@ -51,7 +51,8 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 │   │   ├── submitted-translate.html
 │   │   ├── contactme.html
 │   │   ├── secret.html           # Easter egg page with client-side password gate + Skip button
-│   │   └── timer.html            # Two-bar countdown: green fill = elapsed, "% left" = remaining, editable 24h time inputs (H:M–HH:MM accepted, normalized to HH:MM), localStorage-persisted; standard site header/nav/footer via styles.min.css
+│   │   ├── timer.html            # Two-bar countdown: green fill = elapsed, "% left" = remaining, editable 24h time inputs (H:M–HH:MM accepted, normalized to HH:MM), localStorage-persisted; standard site header/nav/footer via styles.min.css
+│   │   └── anonymous.html        # Imageboard/greentext riff + rickroll CTA; styles.min.css + components/anonymous.min.css
 │   ├── css/
 │   │   ├── fonts.css             # @font-face declarations only
 │   │   ├── fonts.min.css         # Minified fonts.css (artifact, not referenced by pages)
@@ -63,7 +64,9 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 │   │       ├── nexus.css         # Source styles for nexus pages (separate from universe/nexus.css)
 │   │       ├── nexus.min.css     # Built: nexus.css minified
 │   │       ├── timer.css         # Source styles for timer.html (two-bar countdown, animated fill)
-│   │       └── timer.min.css     # Built: timer.css minified
+│   │       ├── timer.min.css     # Built: timer.css minified
+│   │       ├── anonymous.css     # Source styles for anonymous.html (terminal frame, greentext, redaction bars, CTA hover)
+│   │       └── anonymous.min.css # Built: anonymous.css minified
 │   └── js/
 │       ├── lang.js               # Source JS for translate.html i18n + dynamic request blocks
 │       ├── lang.min.js           # Built: lang.js minified
@@ -96,17 +99,18 @@ Personal portfolio website for Azat Yeranosyan, hosted on GitHub Pages at `https
 npm run build
 ```
 
-This runs two scripts (`minify:css` then `minify:js`) which expand to exactly these 10 commands:
+This runs two scripts (`minify:css` then `minify:js`) which expand to exactly these 11 commands:
 1. `cleancss -o src/css/styles.min.css src/css/fonts.css src/css/styles.css`
 2. `cleancss -o src/css/components/translate.min.css src/css/components/translate.css`
 3. `cleancss -o src/css/components/nexus.min.css src/css/components/nexus.css`
 4. `cleancss -o src/css/components/timer.min.css src/css/components/timer.css`
-5. `terser src/js/lang.js -o src/js/lang.min.js -c -m`
-6. `terser src/js/audio.js -o src/js/audio.min.js -c -m`
-7. `terser src/js/drawer.js -o src/js/drawer.min.js -c -m`
-8. `terser src/js/secret.js -o src/js/secret.min.js -c -m`
-9. `terser src/js/nexus.js -o src/js/nexus.min.js -c -m`
-10. `terser src/js/timer.js -o src/js/timer.min.js -c -m`
+5. `cleancss -o src/css/components/anonymous.min.css src/css/components/anonymous.css`
+6. `terser src/js/lang.js -o src/js/lang.min.js -c -m`
+7. `terser src/js/audio.js -o src/js/audio.min.js -c -m`
+8. `terser src/js/drawer.js -o src/js/drawer.min.js -c -m`
+9. `terser src/js/secret.js -o src/js/secret.min.js -c -m`
+10. `terser src/js/nexus.js -o src/js/nexus.min.js -c -m`
+11. `terser src/js/timer.js -o src/js/timer.min.js -c -m`
 
 Note: `src/css/components/nexus.css` and `src/js/nexus.js` are **separate** source files from `universe/nexus.css` and `universe/nexus.js`. The `universe/` files are **not** built by `npm run build` — edit them directly. `universe/transition.html` is also not part of the build.
 
@@ -116,7 +120,7 @@ Pages load `.min.css` and `.min.js` — never the source files directly. Editing
 
 ## Page inventory
 
-All `src/pages/` nav bars include a "Universe" link pointing to `../../universe/transition.html?to=universe`.
+All `src/pages/` nav bars include a "Universe" link pointing to `../../universe/transition.html?to=universe` and an "Anonymous" link pointing to `anonymous.html`.
 
 | Page | CSS used | JS used | Form backend |
 |------|----------|---------|--------------|
@@ -130,6 +134,7 @@ All `src/pages/` nav bars include a "Universe" link pointing to `../../universe/
 | submitted-translate.html | components/translate.min.css | audio.min.js + drawer.min.js | — |
 | secret.html | styles.min.css | audio.min.js + drawer.min.js + secret.min.js | — |
 | timer.html | styles.min.css + components/timer.min.css | audio.min.js + drawer.min.js + timer.min.js | — |
+| anonymous.html | styles.min.css + components/anonymous.min.css | audio.min.js + drawer.min.js | — |
 | universe/index.html | universe/nexus.css (own) | universe/nexus.js (own) + three.js r128 (CDN) | — |
 | universe/transition.html | inline `<style>` only | inline `<script>` only (direction + Canvas 2D) | — |
 
@@ -500,6 +505,8 @@ The `riotproject.html` region dropdown uses Riot's routing values (not platform 
 All page titles follow: `Page Name | Azat Yeranosyan`
 
 Exception: the main index page is just `Azat Yeranosyan`.
+
+`anonymous.html` uses the title `Anonymous | Azat Yeranosyan`. It is styled as an imageboard/greentext riff with a terminal chrome frame, faux redacted credentials, and a misdirecting CTA that rickrolls (`https://www.youtube.com/watch?v=dQw4w9WgXcQ`, `target="_blank" rel="noopener noreferrer"`). Greentext/terminal/redaction styling lives in `src/css/components/anonymous.css` (built to `anonymous.min.css`), all within the site palette and CSP — no inline style/script. The rickroll link is a plain `<a href>` navigation; `default-src 'self'` permits outbound navigation links.
 
 ---
 
