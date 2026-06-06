@@ -7,6 +7,8 @@
             lsStart:   'timerBar1Start',
             lsEnd:     'timerBar1End',
             lsLabel:   'timerBar1Name',
+            lsDayMode: 'timerBar1DayMode',
+            // legacy key for migration
             lsNextDay: 'timerBar1NextDay',
             defaultStart: '09:00',
             defaultEnd:   '17:00',
@@ -17,6 +19,7 @@
             lsStart:   'timerBar2Start',
             lsEnd:     'timerBar2End',
             lsLabel:   'timerBar2Name',
+            lsDayMode: 'timerBar2DayMode',
             lsNextDay: 'timerBar2NextDay',
             defaultStart: '09:00',
             defaultEnd:   '18:00',
@@ -40,29 +43,36 @@
         return String(Math.floor(v / 60)).padStart(2, '0') + ':' + String(v % 60).padStart(2, '0');
     }
 
-    // Returns seconds since epoch for today's HH:MM, or tomorrow's if nextDay=true.
-    // We use absolute timestamps so cross-midnight windows work correctly
-    // regardless of whether the current wall-clock time is before or after midnight.
-    function toAbsMs(hhmm, nextDay) {
+    function toAbsMs(hhmm, dayOffset) {
         var d = new Date();
         d.setHours(Math.floor(hhmm / 60), hhmm % 60, 0, 0);
-        if (nextDay) d.setDate(d.getDate() + 1);
+        if (dayOffset !== 0) d.setDate(d.getDate() + dayOffset);
         return d.getTime();
     }
 
-    // Compute bar state using absolute timestamps.
-    // startMin / endMin are minutes (0-1439). nextDay: whether end is +24h.
-    // Returns null if the window is invalid (end <= start, nextDay unchecked).
-    function computeState(startMin, endMin, nextDay) {
-        var nowMs   = Date.now();
-        var startMs = toAbsMs(startMin, false);
-        var endMs   = toAbsMs(endMin, nextDay);
+    // dayMode: 'same' | 'next' | 'prev'
+    // same: start=today@start, end=today@end. Invalid if end<=start.
+    // next: start=today@start, end=tomorrow@end.
+    // prev: start=yesterday@start, end=today@end.
+    function computeState(startMin, endMin, dayMode) {
+        var nowMs, startMs, endMs, span, elapsed, fillFrac, remFrac, pct;
 
-        // Without nextDay, if end <= start the window makes no sense — signal invalid.
-        if (!nextDay && endMin <= startMin) return null;
+        if (dayMode === 'next') {
+            startMs = toAbsMs(startMin, 0);
+            endMs   = toAbsMs(endMin, 1);
+        } else if (dayMode === 'prev') {
+            startMs = toAbsMs(startMin, -1);
+            endMs   = toAbsMs(endMin, 0);
+        } else {
+            // same day — invalid if end <= start
+            if (endMin <= startMin) return null;
+            startMs = toAbsMs(startMin, 0);
+            endMs   = toAbsMs(endMin, 0);
+        }
 
-        var span    = endMs - startMs;   // always positive (nextDay guarantees it when end<=start)
-        var elapsed = nowMs - startMs;
+        nowMs   = Date.now();
+        span    = endMs - startMs;
+        elapsed = nowMs - startMs;
 
         if (elapsed < 0) {
             return { pct: 100, fill: 0, upcoming: true, done: false, urgency: false };
@@ -70,9 +80,9 @@
         if (elapsed >= span) {
             return { pct: 0, fill: 100, upcoming: false, done: true, urgency: false };
         }
-        var fillFrac = elapsed / span;
-        var remFrac  = 1 - fillFrac;
-        var pct      = remFrac * 100;
+        fillFrac = elapsed / span;
+        remFrac  = 1 - fillFrac;
+        pct      = remFrac * 100;
         return { pct: pct, fill: fillFrac * 100, upcoming: false, done: false, urgency: pct < 15 };
     }
 
@@ -90,18 +100,34 @@
         input.addEventListener('keydown', function (e) {
             var key = e.key;
             if (key === 'ArrowUp' || key === 'ArrowDown') {
-                var v = parseHHMM(input.value);
-                if (v !== null) {
-                    v += key === 'ArrowUp' ? 1 : -1;
-                    if (v < 0)     v += 1440;
-                    if (v >= 1440) v -= 1440;
-                    var hh = String(Math.floor(v / 60)).padStart(2, '0');
-                    var mm = String(v % 60).padStart(2, '0');
-                    input.value = hh + ':' + mm;
-                    e.preventDefault();
-                    input.dispatchEvent(new Event('input'));
-                    input.dispatchEvent(new Event('change'));
+                e.preventDefault();
+                var raw = input.value;
+                var parsed = parseHHMM(raw);
+                if (parsed === null) {
+                    input.value = '00:00';
+                    parsed = 0;
                 }
+                var caretPos = input.selectionStart;
+                var colonIdx = input.value.indexOf(':');
+                // caret at or before colon = hour segment; after colon = minute segment
+                var inHour = (colonIdx === -1 || caretPos <= colonIdx);
+                var h = Math.floor(parsed / 60);
+                var m = parsed % 60;
+                var delta = key === 'ArrowUp' ? 1 : -1;
+                if (inHour) {
+                    h = (h + delta + 24) % 24;
+                } else {
+                    m = (m + delta + 60) % 60;
+                }
+                var hh = String(h).padStart(2, '0');
+                var mm = String(m).padStart(2, '0');
+                input.value = hh + ':' + mm;
+                // restore caret inside the same segment
+                var newColon = input.value.indexOf(':');
+                var newPos = inHour ? Math.min(caretPos, newColon) : Math.max(caretPos, newColon + 1);
+                input.setSelectionRange(newPos, newPos);
+                input.dispatchEvent(new Event('input'));
+                input.dispatchEvent(new Event('change'));
                 return;
             }
             var allowed = ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab', 'Enter', 'Home', 'End'];
@@ -156,11 +182,11 @@
         var wrapper    = document.getElementById('timer-bar-' + cfg.id);
         var startInput = document.getElementById('timer-start-' + cfg.id);
         var endInput   = document.getElementById('timer-end-' + cfg.id);
-        var nextDayCb  = document.getElementById('timer-nextday-' + cfg.id);
         var fill       = document.getElementById('timer-fill-' + cfg.id);
         var track      = document.getElementById('timer-track-' + cfg.id);
         var pctEl      = document.getElementById('timer-pct-' + cfg.id);
         var labelEl    = wrapper.querySelector('.timer-bar-label');
+        var radios     = wrapper.querySelectorAll('input[name="timer-daymode-' + cfg.id + '"]');
 
         var timeRow = wrapper.querySelector('.timer-time-row');
         var hintEl  = document.createElement('div');
@@ -170,30 +196,49 @@
 
         initLabel(labelEl, cfg.lsLabel, cfg.defaultLabel);
 
-        var savedStart   = localStorage.getItem(cfg.lsStart)   || cfg.defaultStart;
-        var savedEnd     = localStorage.getItem(cfg.lsEnd)      || cfg.defaultEnd;
-        var savedNextDay = localStorage.getItem(cfg.lsNextDay) === 'true';
+        var savedStart = localStorage.getItem(cfg.lsStart) || cfg.defaultStart;
+        var savedEnd   = localStorage.getItem(cfg.lsEnd)   || cfg.defaultEnd;
         if (parseHHMM(savedStart) === null) savedStart = cfg.defaultStart;
         if (parseHHMM(savedEnd)   === null) savedEnd   = cfg.defaultEnd;
 
-        startInput.value    = savedStart;
-        endInput.value      = savedEnd;
-        nextDayCb.checked   = savedNextDay;
+        // Resolve dayMode — migrate legacy boolean if needed
+        var savedDayMode = localStorage.getItem(cfg.lsDayMode);
+        if (!savedDayMode || (savedDayMode !== 'same' && savedDayMode !== 'next' && savedDayMode !== 'prev')) {
+            var legacyNextDay = localStorage.getItem(cfg.lsNextDay);
+            savedDayMode = (legacyNextDay === 'true') ? 'next' : 'same';
+        }
+
+        startInput.value = savedStart;
+        endInput.value   = savedEnd;
+
+        // Apply saved radio
+        for (var i = 0; i < radios.length; i++) {
+            radios[i].checked = (radios[i].value === savedDayMode);
+        }
 
         applyMask(startInput, hintEl);
         applyMask(endInput,   hintEl);
+
+        function getDayMode() {
+            for (var j = 0; j < radios.length; j++) {
+                if (radios[j].checked) return radios[j].value;
+            }
+            return 'same';
+        }
 
         function save() {
             if (parseHHMM(startInput.value) !== null)
                 localStorage.setItem(cfg.lsStart, startInput.value);
             if (parseHHMM(endInput.value) !== null)
                 localStorage.setItem(cfg.lsEnd, endInput.value);
-            localStorage.setItem(cfg.lsNextDay, nextDayCb.checked ? 'true' : 'false');
+            localStorage.setItem(cfg.lsDayMode, getDayMode());
         }
 
         startInput.addEventListener('change', save);
         endInput.addEventListener('change', save);
-        nextDayCb.addEventListener('change', save);
+        for (var r = 0; r < radios.length; r++) {
+            radios[r].addEventListener('change', save);
+        }
 
         var lastPct      = '';
         var wasDone      = false;
@@ -202,12 +247,11 @@
         function update(skipRoll) {
             var s       = parseHHMM(startInput.value);
             var e       = parseHHMM(endInput.value);
-            var nextDay = nextDayCb.checked;
+            var dayMode = getDayMode();
             if (s === null || e === null) return;
 
-            var state = computeState(s, e, nextDay);
+            var state = computeState(s, e, dayMode);
 
-            // Invalid window (end <= start, nextDay unchecked)
             if (state === null) {
                 fill.style.width = '0%';
                 if (lastPct !== '__invalid__') {
@@ -219,12 +263,11 @@
                 wrapper.dataset.done     = 'false';
                 wrapper.dataset.upcoming = 'false';
                 wrapper.dataset.urgency  = 'false';
-                hintEl.textContent = 'end ≤ start — enable "Next day" for overnight windows';
+                hintEl.textContent = 'end ≤ start — use Next or Prev day for overnight windows';
                 hintEl.classList.add('visible');
                 return;
             }
 
-            // Clear hint if state is valid
             if (!endInput.dataset.invalid) hintEl.classList.remove('visible');
 
             fill.style.width = state.fill.toFixed(3) + '%';
@@ -277,7 +320,9 @@
         endInput.addEventListener('change',   function () { update(false); });
         startInput.addEventListener('input',  function () { update(false); });
         endInput.addEventListener('input',    function () { update(false); });
-        nextDayCb.addEventListener('change',  function () { update(false); });
+        for (var k = 0; k < radios.length; k++) {
+            radios[k].addEventListener('change', function () { update(false); });
+        }
 
         enteringDone = wrapper.dataset.done === 'true';
         update(true);

@@ -357,15 +357,19 @@ Every page in `src/pages/` includes the following markup just before `</body>`:
 
 **Each bar:**
 - Editable 24h time inputs (`<input type="text" inputmode="numeric">`). Accept flexible formats: `H:M`, `H:MM`, `HH:M`, `HH:MM` (1–2 digit hours 0–23, 1–2 digit minutes 0–59). On blur, value is normalized to zero-padded `HH:MM` for display, storage, and computation. Out-of-range values show a gentle inline hint and shake animation; no harsh errors.
-- "Next day" checkbox next to the end-time field. When checked, `effective_end = end_time + 24 h` (the end is interpreted as the following calendar day). When unchecked, `effective_end = end_time` (same day). This is the **only** cross-midnight mechanism — there is no automatic inference.
-- Horizontal progress track (`role="progressbar"`). GREEN fill width = elapsed proportion `(now − start) / (effective_end − start)`, computed using absolute timestamps so overnight windows detect active/upcoming/done correctly even when the current time is already past midnight.
-- `"% left"` readout = `round((effective_end − now) / (effective_end − start) × 100)` — the dark-remainder portion.
-- If "Next day" is unchecked and end ≤ start, the bar shows `—` and a gentle inline hint: "end ≤ start — enable 'Next day' for overnight windows". No progress is shown.
+- Three-way day-offset segmented control (native radio group, `<fieldset>`/visually-hidden `<legend>`) next to the end-time field. Mutually exclusive; options: **Prev day** / **Same day** (default) / **Next day**. Semantics anchored to the current calendar date:
+  - **Same day**: `effective_start = today@start`, `effective_end = today@end`. If end ≤ start, bar shows `—` and inline hint.
+  - **Next day**: `effective_start = today@start`, `effective_end = tomorrow@end`. Spans forward across midnight.
+  - **Prev day**: `effective_start = yesterday@start`, `effective_end = today@end`. Spans backward across midnight.
+- Horizontal progress track (`role="progressbar"`). GREEN fill width = elapsed proportion `(now − effective_start) / (effective_end − effective_start)`, computed using absolute timestamps so overnight windows detect active/upcoming/done correctly regardless of when the page is viewed.
+- `"% left"` readout = `round((effective_end − now) / (effective_end − effective_start) × 100)` — the dark-remainder portion.
+- If Same day and end ≤ start, the bar shows `—` and a gentle inline hint: "end ≤ start — use Next or Prev day for overnight windows". No progress is shown.
 - Before start: 0% filled, "starts HH:MM", `.data-upcoming="true"`. After end: 100% filled, "✓ done", `.data-done="true"`.
 
 **`timer.js` behavior:**
+- ArrowUp/Down on a time field steps only the focused segment: caret at/before `:` steps the hour (wraps 23↔00), caret after `:` steps the minute (wraps 59↔00); page scroll is suppressed and the caret stays in the same segment.
 - `requestAnimationFrame` loop recalculates fill on every frame; "% left" text updates only when the integer changes.
-- localStorage keys: `timerBar1Start`, `timerBar1End` (defaults `09:00` / `17:00`), `timerBar2Start`, `timerBar2End` (defaults `09:00` / `18:00`), `timerBar1NextDay`, `timerBar2NextDay` (boolean, default `false`), `timerBar1Name` (default `'Diana'`), `timerBar2Name` (default `'Azat'`). Saved on `change` event; restored on load.
+- localStorage keys: `timerBar1Start`, `timerBar1End` (defaults `09:00` / `17:00`), `timerBar2Start`, `timerBar2End` (defaults `09:00` / `18:00`), `timerBar1DayMode`, `timerBar2DayMode` (`'same'` | `'next'` | `'prev'`, default `'same'`), `timerBar1Name` (default `'Diana'`), `timerBar2Name` (default `'Azat'`). Saved on `change` event; restored on load. Legacy `timerBarNNextDay === 'true'` is migrated to `'next'` on first load.
 
 **`timer.css` uses site CSS custom properties** (`--background-color`, `--neon-green`, etc.) — no hardcoded hex colours that duplicate theme vars. All decorative motion disabled under `prefers-reduced-motion: reduce`.
 
@@ -380,7 +384,7 @@ Every page in `src/pages/` includes the following markup just before `</body>`:
 - Gentle shake on invalid input (`timerShake`, 260 ms).
 - CSS `transition: width 280ms` on `.timer-fill` so input edits glide; reduced-motion shortens to 80 ms.
 
-**localStorage keys:** `timerBar1Start`, `timerBar1End`, `timerBar1Name`, `timerBar1NextDay`, `timerBar2Start`, `timerBar2End`, `timerBar2Name`, `timerBar2NextDay`.
+**localStorage keys:** `timerBar1Start`, `timerBar1End`, `timerBar1Name`, `timerBar1DayMode`, `timerBar2Start`, `timerBar2End`, `timerBar2Name`, `timerBar2DayMode`.
 
 **CSS:** `styles.min.css` + `components/timer.min.css`.
 **JS:** `audio.min.js` + `drawer.min.js` + `timer.min.js` (all `defer`).
@@ -596,7 +600,7 @@ Standalone Canvas 2D animation page — no CDN, no shared CSS/JS, no three.js. A
 - Do not remove `data-i18n` attributes from labels in translate.html — the i18n system depends on them.
 - Do not hand-edit `audio.min.js`, `drawer.min.js`, `secret.min.js`, or `nexus.min.js` (in `src/js/`) — edit the source `.js` and run `npm run build`. The `universe/nexus.js` file has no built counterpart — edit it directly.
 - Do not confuse `src/css/components/nexus.css` / `src/js/nexus.js` (build-managed, in `src/`) with `universe/nexus.css` / `universe/nexus.js` (edited directly, not built).
-- Do not rename the localStorage keys `bgAudioMuted`, `bgAudioTrack`, `bgAudioVolume`, `promoDrawerOpen`, `timerBar1Start`, `timerBar1End`, `timerBar1Name`, `timerBar1NextDay`, `timerBar2Start`, `timerBar2End`, `timerBar2Name`, or `timerBar2NextDay` without updating the corresponding JS source and all pages that may read them.
+- Do not rename the localStorage keys `bgAudioMuted`, `bgAudioTrack`, `bgAudioVolume`, `promoDrawerOpen`, `timerBar1Start`, `timerBar1End`, `timerBar1Name`, `timerBar1DayMode`, `timerBar2Start`, `timerBar2End`, `timerBar2Name`, or `timerBar2DayMode` without updating the corresponding JS source and all pages that may read them.
 - Do not autoplay with sound — the `<audio>` element must start `muted`. Sound only plays after an explicit user gesture (toggle click).
 - Do not restore the `loop` attribute on `<audio>` — its absence is intentional to allow the `ended` event to fire for auto-advance to the next track.
 - Do not move `assets/audio/` without updating the `src` path in every page's `<audio>` element and the `AUDIO_BASE` constant in `audio.js`.
