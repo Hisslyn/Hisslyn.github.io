@@ -64,10 +64,21 @@
                     spellcheck="false"
                     aria-label="Bar 1 end time (HH:MM)"
                 >
-                <label class="timer-nextday-label" for="timer-nextday-1">
-                    <input class="timer-nextday-cb" id="timer-nextday-1" type="checkbox" aria-label="Bar 1 end is next day">
-                    <span>Next day</span>
-                </label>
+                <fieldset class="timer-daymode-group" id="timer-daymode-group-1">
+                    <legend class="visually-hidden">Day offset for Diana</legend>
+                    <label class="timer-daymode-option">
+                        <input type="radio" name="timer-daymode-1" value="prev" class="timer-daymode-radio">
+                        <span>Prev</span>
+                    </label>
+                    <label class="timer-daymode-option">
+                        <input type="radio" name="timer-daymode-1" value="same" class="timer-daymode-radio" checked>
+                        <span>Same</span>
+                    </label>
+                    <label class="timer-daymode-option">
+                        <input type="radio" name="timer-daymode-1" value="next" class="timer-daymode-radio">
+                        <span>Next</span>
+                    </label>
+                </fieldset>
                 <span class="timer-pct" id="timer-pct-1" aria-hidden="true">—</span>
             </div>
             <div
@@ -113,10 +124,21 @@
                     spellcheck="false"
                     aria-label="Bar 2 end time (HH:MM)"
                 >
-                <label class="timer-nextday-label" for="timer-nextday-2">
-                    <input class="timer-nextday-cb" id="timer-nextday-2" type="checkbox" aria-label="Bar 2 end is next day">
-                    <span>Next day</span>
-                </label>
+                <fieldset class="timer-daymode-group" id="timer-daymode-group-2">
+                    <legend class="visually-hidden">Day offset for Azat</legend>
+                    <label class="timer-daymode-option">
+                        <input type="radio" name="timer-daymode-2" value="prev" class="timer-daymode-radio">
+                        <span>Prev</span>
+                    </label>
+                    <label class="timer-daymode-option">
+                        <input type="radio" name="timer-daymode-2" value="same" class="timer-daymode-radio" checked>
+                        <span>Same</span>
+                    </label>
+                    <label class="timer-daymode-option">
+                        <input type="radio" name="timer-daymode-2" value="next" class="timer-daymode-radio">
+                        <span>Next</span>
+                    </label>
+                </fieldset>
                 <span class="timer-pct" id="timer-pct-2" aria-hidden="true">—</span>
             </div>
             <div
