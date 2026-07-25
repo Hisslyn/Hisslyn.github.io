@@ -14,7 +14,7 @@ queue means nothing is checking anything.
 
 ## Entries
 
-`d92605a` — open https://hisslyn.github.io/scripts/data_collector.py in a browser — line 54 reads by-puuid/{puuid}/…api_key={API_KEY}; no RGAPI- literal and no raw PUUID anywhere in the file
+`d92605a` — open https://hisslyn.github.io/scripts/data_collector.py in a browser — line 54 contains no hardcoded API key literal and no raw PUUID value anywhere in the file
 
 ## Rules
 
@@ -43,6 +43,12 @@ what to trigger survives the session that couldn't pin the cause.
 and shrinks only when Azat sits down with the site open. Every loop reports its pending count; run
 `/burn-down` every ~5 visual sessions, or when the SessionStart hook starts warning. The source
 project let this reach 38 pending and never scheduled it (LESSONS.md §11).
+
+**Known benign history blobs.** Two commits in git history (`d92605a` and `8fdb82a` versions of
+this file) contain a secret-scanner matching string as prose text in an expected-result clause. A
+secret scan reporting exactly two hits in VERIFY-LATER.md is expected and not an incident; more than
+two hits, or any hit in a different file path, is real and should be treated as an actual secret
+exposure.
 
 ## Burn-down procedure
 
