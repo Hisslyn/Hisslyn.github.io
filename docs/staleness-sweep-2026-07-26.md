@@ -1,7 +1,7 @@
 # Staleness sweep — 2026-07-26
 
 First staleness sweep of `CLAUDE.md`, run as part of retrofitting the loop process system onto this
-repo. Audited against the tree at `0514e55`.
+repo. Audited against the tree at `d958dfb`.
 
 **Result: 40 numbered findings covering 37 distinct artifacts — 23 factually stale, 14 hand-copied
 enumerations that had not yet rotted, and 3 artifacts double-counted across both halves (see
@@ -59,7 +59,7 @@ rot clock instead of stopping it. Every finding below resolves to a pointer, not
 
 | # | Claim | Current truth | Verdict | Disposition |
 |---|---|---|---|---|
-| 1 | Directory tree omitted `src/pages/universe.html` | Exists, 2,520 B, added in `1d100e0`. Full page: `styles.min.css` + `components/nexus.min.css` + `vendor/three.min.js` + `nexus.min.js` + audio cluster + drawer, `default-src 'self'` | REPLACE-WITH-POINTER | Tree deleted; replaced by a purpose-per-directory Workspace map. Page itself → LEDGER row `page-universe-src` |
+| 1 | Directory tree omitted `src/pages/universe.html` | Exists, 2,520 B, added in `846f15d`. Full page: `styles.min.css` + `components/nexus.min.css` + `vendor/three.min.js` + `nexus.min.js` + audio cluster + drawer, `default-src 'self'` | REPLACE-WITH-POINTER | Tree deleted; replaced by a purpose-per-directory Workspace map. Page itself → LEDGER row `page-universe-src` |
 | 2 | Tree omitted `src/js/vendor/` | `src/js/vendor/three.min.js` — a self-hosted three.js, the CSP-clean counterpart to `universe/index.html`'s cdnjs load | REPLACE-WITH-POINTER | Workspace map row for `src/js/vendor/`; LEDGER row `vendored-three` |
 | 3 | Tree omitted `public/` | **Corrected after audit.** `public/` is an empty *untracked* directory: absent from `git ls-tree HEAD`, absent from a fresh clone, present only on this machine — the identical condition that makes finding #20 a non-issue | DELETE | Originally added to the Workspace map; **removed**, because applying the #20 rule consistently means it is not part of the project at all |
 | 4 | Page inventory table (13 rows); intro claimed "All `src/pages/` nav bars include…" | **Corrected after audit: all 13 existing rows were accurate** (the first draft claimed "12 of 13" and never named the bad row — an invented defect). The real staleness is an omission: `src/pages/universe.html` is a 14th page with **no `<nav>` at all** and no inbound link | REPLACE-WITH-POINTER | Table deleted. "Page inventory" now carries only the facts not derivable from a single page, and states the universe.html exception explicitly |
@@ -71,7 +71,7 @@ rot clock instead of stopping it. Every finding below resolves to a pointer, not
 | 10 | CSS var table listed 7 vars, then a trailing paragraph admitted an 8th was "not listed in the table above" | 8 vars on `:root`. The document was already patching around its own incomplete table | REPLACE-WITH-POINTER | Table deleted; `styles.css` `:root` named as the single source |
 | 11 | Known issues omitted the `.gitignore` inversion | `.gitignore:7-11` untracks `src/css/styles.css`, `src/css/fonts.css`, `src/css/fonts.min.css`, `src/css/components/translate.css`, `src/js/lang.js`. **Corrected after audit:** only three of the five have committed `.min` twins (`styles.css`, `components/translate.css`, `lang.js`); `fonts.css` is concatenated into `styles.min.css` and has no twin of its own, and `fonts.min.css` is not a source at all but a second untracked artifact. The consequence is unchanged and proven: **`npm run build` cannot run from a fresh clone.** Verified with `git ls-files --error-unmatch`. **Scope correction:** `.gitignore:5` (`scripts/`) is a separate and opposite case — `scripts/data_collector.py` was committed before the rule, so it is tracked *and publicly served* despite being ignored. `.gitignore:6` (`perfect_folder_looks.txt`) is a dead rule; the file does not exist | ADD | Invariant **I6** + LEDGER row `reproducible-build` (MISSING) + a standing note in "Known issues". Files backed up out-of-band before any process work began |
 | 12 | Known issues omitted translate.html's reachability | Linked from nothing except `submitted-translate.html`, its own confirmation page | ADD | LEDGER row `page-translate-reach` |
-| 13 | Known issues omitted the orphaned Universe | Nothing links to `src/pages/universe.html`; it and `vendor/three.min.js` arrived together in `1d100e0` | ADD | LEDGER rows `page-universe-src` (PARTIAL) and `vendored-three` |
+| 13 | Known issues omitted the orphaned Universe | Nothing links to `src/pages/universe.html`; it and `vendor/three.min.js` arrived together in `846f15d` | ADD | LEDGER rows `page-universe-src` (PARTIAL) and `vendored-three` |
 | 14 | Known issues omitted `public/` | **Withdrawn after audit** — see #3. An untracked empty directory is not in the repo and is not served, so there is nothing to document or clean up | DELETE | Removed from the Workspace map and from the `dead-weight` LEDGER row |
 | 15 | Title convention did not cover collisions | Two collisions found — see "Logged for loop D" below | ADD | Convention now states titles must be unique; collisions tracked in LEDGER |
 | 16 | CSP table printed `script-src 'sha256-...' 'sha256-...'` for `universe/transition.html` | Elided placeholders — unverifiable as written | REPLACE-WITH-POINTER | Table deleted; each page's own meta tag is now the stated single source |

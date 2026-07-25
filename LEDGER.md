@@ -9,7 +9,7 @@ Rule: agents may set STATUS to BUILT at most; only Azat sets APPROVED.
 it under these rules. `BUILT` here means "exists and appears to work by reading the code", not
 "blessed".
 
-Baseline (2026-07-26, post `0514e55`) — `npm run check:site` → pages=16 refs=219 broken=0 | csp_missing=1 nojekyll=present
+Baseline (2026-07-26, post `d958dfb`) — `npm run check:site` → pages=16 refs=219 broken=0 | csp_missing=1 nojekyll=present
 
 ```
 pages=16 refs=219 broken=0
@@ -40,7 +40,7 @@ re-litigate it, extend it.*
 | page-secret | pages | BUILT | check-site | Client-side password gate → `timer.html`; sessionStorage `secretUnlocked` reveals the Skip button. Not authentication, by design |
 | page-timer | pages | BUILT | check-site | Two-bar countdown; the site's most stateful page. No nav entry, so no `active` link |
 | page-anonymous | pages | BUILT | check-site | Imageboard/greentext riff; outbound rickroll CTA is a plain `<a href>` — permitted under `default-src 'self'` because CSP does not govern navigation |
-| page-universe-src | pages | PARTIAL | — | **Orphan duplicate of `universe/index.html`; decide promote-or-delete.** Complete and CSP-clean (`default-src 'self'`, self-hosted three.js, audio cluster + drawer integrated) but has no `<nav>` and zero inbound links. Arrived with `vendored-three` in `1d100e0`. Two copies of one page silently drifting is the trap; ruled PARTIAL rather than BUILT-plus-a-missing-link. Title collision with `universe/index.html` is D-2 and dissolves with this decision |
+| page-universe-src | pages | PARTIAL | — | **Orphan duplicate of `universe/index.html`; decide promote-or-delete.** Complete and CSP-clean (`default-src 'self'`, self-hosted three.js, audio cluster + drawer integrated) but has no `<nav>` and zero inbound links. Arrived with `vendored-three` in `846f15d`. Two copies of one page silently drifting is the trap; ruled PARTIAL rather than BUILT-plus-a-missing-link. Title collision with `universe/index.html` is D-2 and dissolves with this decision |
 | page-universe-nexus | pages | BUILT | check-site | `universe/index.html`; own scoped CSP permitting Google Fonts + cdnjs three.js r128 + one hashed inline script |
 | page-universe-portal | pages | BUILT | check-site | `universe/transition.html`; direction-aware `?to=` portal, two hashed inline scripts, `'unsafe-inline'` style-src |
 | audio-cluster | shared | BUILT | — | `src/js/audio.js` + `data/tracks.json` + identical markup on every `src/pages/` page. Playlist order is single-sourced in `tracks.json`. Auto-advance and manual skip differ deliberately (no fade vs fade) |
