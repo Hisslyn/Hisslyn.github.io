@@ -14,7 +14,7 @@ queue means nothing is checking anything.
 
 ## Entries
 
-`6491980` — open https://hisslyn.github.io/scripts/data_collector.py in a browser — line 54 reads by-puuid/{puuid}/…api_key={API_KEY}; no RGAPI- literal and no raw PUUID anywhere in the file
+`d92605a` — open https://hisslyn.github.io/scripts/data_collector.py in a browser — line 54 reads by-puuid/{puuid}/…api_key={API_KEY}; no RGAPI- literal and no raw PUUID anywhere in the file
 
 ## Rules
 
