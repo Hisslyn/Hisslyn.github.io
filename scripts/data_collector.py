@@ -51,7 +51,7 @@ type = ""
 start = 0 # default is 0 btw
 count = 10
 
-THIRD_REQUEST = requests.get(f"https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/REDACTED-PUUID/ids?start={start}&count={count}&api_key=REDACTED-ROTATED-KEY")
+THIRD_REQUEST = requests.get(f"https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?start={start}&count={count}&api_key={API_KEY}")
 
 MATCH_ARRAY_STR = THIRD_REQUEST.content.decode()
 
