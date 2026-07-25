@@ -1,0 +1,46 @@
+{
+  "_comment": "Rules for THIS project only. All five kit example rules were deleted. Each rule below maps to a hard invariant in CLAUDE.md and was verified to produce ZERO false positives against the tree at 0514e55 before being enabled. Scope narrowly: a guard that fires on files it shouldn't gets bypassed, and a bypassed guard enforces nothing.",
+
+  "allow_mark": "guard-allow",
+  "bypass_env": "ALLOW_GUARD_VIOLATION",
+
+  "rules": [
+    {
+      "name": "no-hand-edited-build-output",
+      "_comment": "INVARIANT I1. Blocks ANY write to a minified file under src/. The guard is a forbidden-pattern engine, so 'this file may not be written at all' is expressed as a pattern matching any non-whitespace character. Covers both npm-generated twins and src/js/vendor/three.min.js — a hand-edited vendored library is the same defect as a hand-edited build artifact. Scope is exactly two directories and exactly two extensions.",
+      "invariant": "Minified files under src/ are generated or vendored — never hand-edited. Edit the source and run `npm run build`; for vendored files, replace the whole file from upstream.",
+      "include": ["src/css/", "src/js/"],
+      "extensions": [".min.css", ".min.js"],
+      "comment_style": "none",
+      "forbidden": [
+        { "pattern": "\\S", "reason": "this file is build output or a vendored library — edit the source in src/ and run `npm run build`, or replace a vendored file wholesale from upstream" }
+      ]
+    },
+
+    {
+      "name": "universe-boundary-single-key",
+      "_comment": "INVARIANT I2. The ONLY state crossing the universe/ boundary is the bgAudioMuted localStorage key. comment_style is 'none' so inline <script> blocks inside .html are scanned raw and string literals stay visible — the key name is the thing being matched. Verified: universe/ contains exactly two storage calls today, both bgAudioMuted, both pass.",
+      "invariant": "universe/ shares exactly one piece of state with the main site: the bgAudioMuted localStorage key. No other key, no sessionStorage, no cookies.",
+      "include": ["universe/"],
+      "extensions": [".js", ".html"],
+      "comment_style": "none",
+      "forbidden": [
+        { "pattern": "localStorage\\s*\\.\\s*(?:get|set|remove)Item\\s*\\(\\s*['\"](?!bgAudioMuted['\"])", "reason": "localStorage key other than bgAudioMuted — that key is the single documented cross-boundary mechanism (CLAUDE.md, invariant I2)" },
+        { "pattern": "\\bsessionStorage\\b", "reason": "sessionStorage in universe/ — cross-boundary state must go through bgAudioMuted only" },
+        { "pattern": "document\\s*\\.\\s*cookie", "reason": "cookies in universe/ — cross-boundary state must go through bgAudioMuted only" }
+      ]
+    },
+
+    {
+      "name": "no-absolute-root-paths",
+      "_comment": "INVARIANT I3. Relative-path convention. An absolute-root path renders fine on the live domain but breaks local file:// preview and every relative-path assumption in the repo, so it fails silently in exactly the place nobody checks. Preventive: zero occurrences exist today. The negative lookahead lets protocol-relative //host through to be judged by CSP, not by this rule.",
+      "invariant": "Asset paths are relative — ../../assets/, ../css/, ../js/ from src/pages/. No absolute-root paths (CLAUDE.md, invariant I3).",
+      "include": ["src/pages/", "universe/", "side kick/"],
+      "extensions": [".html"],
+      "comment_style": "none",
+      "forbidden": [
+        { "pattern": "(?:href|src)\\s*=\\s*\"/(?!/)", "reason": "absolute-root path — use a relative path; `npm run check:site` is what catches the breakage otherwise" }
+      ]
+    }
+  ]
+}

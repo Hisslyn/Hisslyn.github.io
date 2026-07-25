@@ -9,3 +9,18 @@ src/css/fonts.css
 src/css/fonts.min.css
 src/css/components/translate.css
 src/js/lang.js
+
+# --- added 2026-07-26 (process-system scaffold) ---
+# Secret hygiene. Every file in this repo is publicly served, so a leaked key is a
+# published key. .env was already covered; these extend it. Nothing above this line
+# was changed — see the `reproducible-build` and `gitignore-hygiene` LEDGER.md rows
+# for the two pre-existing defects in the rules above, which need their own diffs.
+.env.*
+!.env.example
+*.pem
+*.key
+*.log
+
+# NOT ignored, deliberately: references/ holds specifications and docs/ holds the
+# doc tree. Both are version-controlled artifacts. Gitignoring references/ is how
+# the source project lost its own specifications (LESSONS.md §11).

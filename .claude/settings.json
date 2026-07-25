@@ -1,0 +1,72 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "Bash(npm run build)",
+      "Bash(npm run minify:css)",
+      "Bash(npm run minify:js)",
+      "Bash(npm run check:site)",
+      "Bash(npm run docs:stale)",
+      "Bash(python3 tools/check-site.py*)",
+      "Bash(python3 tools/docs-stale.py*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git show*)",
+      "Bash(git add*)",
+      "Bash(git commit*)",
+      "Bash(git ls-files*)",
+      "Bash(git check-ignore*)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(wc *)",
+      "Bash(cmp *)",
+      "Bash(shasum *)"
+    ],
+    "deny": [
+      "Bash(git push*)",
+      "Bash(git remote set-url*)",
+      "Bash(gh pr create*)",
+      "Bash(gh release*)",
+      "Bash(gh repo*)",
+      "Bash(gh api*)",
+      "Bash(gh workflow*)",
+      "Bash(rm -rf *)",
+      "Bash(git clean -x*)",
+      "Read(./.env)",
+      "Read(./.env.*)"
+    ],
+    "defaultMode": "default"
+  },
+
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/invariant-guard.py\"",
+            "statusMessage": "Checking invariants..."
+          }
+        ]
+      }
+    ]
+  },
+
+  "fileCheckpointingEnabled": true,
+  "todoFeatureEnabled": true
+}
