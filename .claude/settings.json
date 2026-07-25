@@ -23,10 +23,16 @@
       "Bash(find *)",
       "Bash(wc *)",
       "Bash(cmp *)",
-      "Bash(shasum *)"
+      "Bash(shasum *)",
+      "Bash(git push*)",
+      "Bash(git reflog*)",
+      "Bash(git gc*)",
+      "Bash(git cat-file*)",
+      "Bash(git rev-list*)",
+      "Bash(git fsck*)",
+      "Bash(git ls-remote*)"
     ],
     "deny": [
-      "Bash(git push*)",
       "Bash(git remote set-url*)",
       "Bash(gh pr create*)",
       "Bash(gh release*)",
