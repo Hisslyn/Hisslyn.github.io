@@ -1,50 +1,27 @@
 {
-  "permissions": {
+    "permissions": {
     "allow": [
+      "Bash",
       "Read",
+      "Edit",
+      "Write",
       "Glob",
       "Grep",
-      "Bash(npm run build)",
-      "Bash(npm run minify:css)",
-      "Bash(npm run minify:js)",
-      "Bash(npm run check:site)",
-      "Bash(npm run docs:stale)",
-      "Bash(python3 tools/check-site.py*)",
-      "Bash(python3 tools/docs-stale.py*)",
-      "Bash(git status*)",
-      "Bash(git diff*)",
-      "Bash(git log*)",
-      "Bash(git show*)",
-      "Bash(git add*)",
-      "Bash(git commit*)",
-      "Bash(git ls-files*)",
-      "Bash(git check-ignore*)",
-      "Bash(ls *)",
-      "Bash(find *)",
-      "Bash(wc *)",
-      "Bash(cmp *)",
-      "Bash(shasum *)",
-      "Bash(git push*)",
-      "Bash(git reflog*)",
-      "Bash(git gc*)",
-      "Bash(git cat-file*)",
-      "Bash(git rev-list*)",
-      "Bash(git fsck*)",
-      "Bash(git ls-remote*)"
+      "WebFetch",
+      "WebSearch"
+    ],
+    "ask": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git reset --hard*)",
+      "Bash(git clean -x*)",
+      "Bash(rm -rf *)"
     ],
     "deny": [
-      "Bash(git remote set-url*)",
-      "Bash(gh pr create*)",
-      "Bash(gh release*)",
-      "Bash(gh repo*)",
-      "Bash(gh api*)",
-      "Bash(gh workflow*)",
-      "Bash(rm -rf *)",
-      "Bash(git clean -x*)",
       "Read(./.env)",
       "Read(./.env.*)"
     ],
-    "defaultMode": "default"
+    "defaultMode": "auto"
   },
 
   "hooks": {
@@ -67,19 +44,6 @@
             "type": "command",
             "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/invariant-guard.py\"",
             "statusMessage": "Checking invariants..."
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "if": "Bash(git commit*)",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/commit-prefix-guard.py\"",
-            "statusMessage": "Checking commit prefix..."
           }
         ]
       }
