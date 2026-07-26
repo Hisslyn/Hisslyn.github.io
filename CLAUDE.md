@@ -105,7 +105,8 @@ all of them, and a noisy guard gets bypassed. Do not configure one.
 - **Commit prefixes**: `feat: <chunk-id> <description>`, `fidelity: <screen> pass N`,
   `fix: <bug-id> <short cause>`, `feel: <target>`, `verify-later: <chunk> … for <commit>`,
   `docs: <path>`, `chore: <description>`. There is no `tuning:` prefix — this project has no
-  external numeric reference to tune against.
+  external numeric reference to tune against. This taxonomy is now hook-enforced by
+  `.claude/hooks/commit-prefix-guard.py` (bypass env var `ALLOW_COMMIT_PREFIX_VIOLATION`).
 - **`git push` to `main` is permitted**, and allowed in `.claude/settings.json`. It is still a live
   deploy — this repo *is* the served site, so run `npm run check:site` and confirm it is at the
   `LEDGER.md` baseline or better *before* pushing. **Force-pushes are different**: `--force` and

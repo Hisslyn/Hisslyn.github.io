@@ -70,6 +70,19 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "if": "Bash(git commit*)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/commit-prefix-guard.py\"",
+            "statusMessage": "Checking commit prefix..."
+          }
+        ]
+      }
     ]
   },
 
