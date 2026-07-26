@@ -21,6 +21,11 @@ src/js/lang.js
 *.key
 *.log
 
+# Compiled Python bytecode from the .claude/hooks/ scripts. Untracked today, but a
+# single `git add -A` would publish it — every file in this repo is served.
+__pycache__/
+*.pyc
+
 # NOT ignored, deliberately: references/ holds specifications and docs/ holds the
 # doc tree. Both are version-controlled artifacts. Gitignoring references/ is how
 # the source project lost its own specifications (LESSONS.md §11).
