@@ -18,6 +18,8 @@ queue means nothing is checking anything.
 
 `bad0d3a` — restart Claude Code in this repo and confirm /loop-c no longer appears in the slash-command list — /loop-c is absent from the slash-command list
 
+`264d547` — restart Claude Code, attempt a commit with a bad prefix in a real session — the commit-prefix-guard hook blocks it in-session rather than only when piped by hand
+
 ## Rules
 
 **Supersede, never delete.** When a rework invalidates an entry, strike it through, append
