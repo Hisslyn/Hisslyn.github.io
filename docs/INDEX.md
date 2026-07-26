@@ -6,8 +6,9 @@ The `docs/INDEX.md first` rule in `CLAUDE.md` points here, so this file must sta
 complete: one line per file, dense enough that an agent can tell from the line alone whether it needs
 to open the doc.
 
-**Status: no per-file docs written yet.** The `documentarian` pass has not run. Until it does, the
-source files themselves are the only documentation, and `CLAUDE.md` is the map.
+**Status: first documentarian pass complete for the JS behaviour layer and tooling** (9 files — see
+`## Per-file docs` below). Every other source file is still undocumented; the source itself remains
+the only documentation for anything not listed below, and `CLAUDE.md` is the map until it is.
 
 ## Codename glossary
 
@@ -27,7 +28,26 @@ descends from). When any of them gets a doc, it gets a row here first.*
 Format: `<source path>` -> `docs/<mirrored>.md` — one-line purpose. Sort by path. Files deliberately
 skipped get a SKIPPED marker with the reason, so a later pass doesn't rediscover them as gaps.
 
-*None yet.*
+- `src/js/audio.js` -> `docs/src/js/audio.md` — background audio cluster controller: mute/volume/
+  playlist state, fade ramps, auto-advance vs. manual skip.
+- `src/js/drawer.js` -> `docs/src/js/drawer.md` — promo drawer open/closed state controller
+  (`promoDrawerOpen` localStorage key).
+- `src/js/lang.js` -> `docs/src/js/lang.md` — `translate.html` i18n + dynamic request-block cloning +
+  running-total price controller. **Untracked in git** (`reproducible-build` ledger row) — found via
+  `ls`, not `git ls-files`.
+- `src/js/nexus.js` -> `docs/src/js/nexus.md` — build-managed Three.js scene for the orphaned
+  `src/pages/universe.html` duplicate. Do not confuse with `universe/nexus.js`.
+- `src/js/secret.js` -> `docs/src/js/secret.md` — `secret.html` easter-egg password gate (plain-text
+  password, not real auth) and `secretUnlocked` sessionStorage flag.
+- `src/js/timer.js` -> `docs/src/js/timer.md` — `timer.html` two-bar countdown: HH:MM parsing/
+  validation, absolute-timestamp state computation, JS-owned `data-*` classification consumed by
+  `timer.css`.
+- `tools/check-site.py` -> `docs/tools/check-site.md` — the project's test-suite substitute: link/
+  asset existence, CSP presence, `.nojekyll` presence; `npm run check:site`.
+- `tools/docs-stale.py` -> `docs/tools/docs-stale.md` — staleness detector for this documentation
+  system itself; re-hashes every manifest entry's source; `npm run docs:stale`.
+- `universe/nexus.js` -> `docs/universe/nexus.md` — production Universe-dimension Three.js scene:
+  five nav planets plus the unlabeled sun-as-Secret-page raycast target. Not built, edited directly.
 
 ## Topical docs
 
