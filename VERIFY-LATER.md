@@ -16,6 +16,8 @@ queue means nothing is checking anything.
 
 `d92605a` — open https://hisslyn.github.io/scripts/data_collector.py in a browser — line 54 contains no hardcoded API key literal and no raw PUUID value anywhere in the file
 
+`bad0d3a` — restart Claude Code in this repo and confirm /loop-c no longer appears in the slash-command list — /loop-c is absent from the slash-command list
+
 ## Rules
 
 **Supersede, never delete.** When a rework invalidates an entry, strike it through, append
