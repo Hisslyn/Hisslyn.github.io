@@ -22,6 +22,8 @@ queue means nothing is checking anything.
 
 `4bcdce7` — in a Claude Code **VS Code extension** session in this repo (not the terminal CLI), send any message and look directly beneath the reply — a line starting `state | ` showing commit SHA, tree count, `ledger NB/NP/NM`, verify-later, and build status is visible in the extension's chat pane itself, with no terminal panel opened; the turn's matching entry also appears in `~/.claude/turn-state/9e08af5e28d2.log`
 
+`46a73e9` — start a fresh Claude Code session in this repo and read the injected SessionStart context block — the `VERIFY-LATER:` line reports 5 pending deferred checks (it reported 0 before this commit, against 4 real entries), and the `state | ` line under the first reply reports the same `verify-later 5`
+
 ## Rules
 
 **Supersede, never delete.** When a rework invalidates an entry, strike it through, append
