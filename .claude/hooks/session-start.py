@@ -67,17 +67,52 @@ def ledger_summary(text):
     return rows, counts
 
 
+# An entry line in VERIFY-LATER.md's documented three-field format:
+#     `<commit>` — <exact action> — <expected result>
+# optionally struck through (~~…~~) once superseded, and with the literal PENDING
+# standing in for a commit SHA on entries written before their fix commits.
+ENTRY_RE = re.compile(r"^(?:~~)?\s*(?:`(?:[0-9a-f]{7,40}|PENDING)`|PENDING\b)")
+ENTRIES_HEADING_RE = re.compile(r"^#+\s*Entries\s*$", re.MULTILINE | re.IGNORECASE)
+
+
 def verify_later_summary(text):
-    """Count pending vs superseded/confirmed deferred checks."""
+    """Count pending vs superseded/confirmed deferred checks.
+
+    DIVERGES from the unmodified kit copy at
+    ~/Desktop/claude-project-kit/claude-config/hooks/session-start.py. That version
+    skipped every line not starting with "-", i.e. it counted markdown list items
+    only. This project's documented entry format — see VERIFY-LATER.md's own header
+    and CLAUDE.md's process conventions — begins with a backticked commit SHA, so
+    the kit parser matched nothing and the pending count read 0 no matter how far
+    the backlog grew. That is precisely the failure the counter exists to catch
+    (LESSONS §12.3; the source project reached 38 unnoticed), so the parser was
+    fixed rather than the format. Scoping to the "## Entries" section also keeps the
+    prose under "## Rules" — which cites commit SHAs — out of the count. Files with
+    no Entries heading fall back to whole-file scanning, and the "-" list form is
+    still recognised, so kit-shaped VERIFY-LATER.md files keep working.
+    """
     pending = superseded = confirmed = 0
+    scoped = bool(ENTRIES_HEADING_RE.search(text))
+    in_entries = not scoped
     for line in text.splitlines():
         s = line.strip()
-        if not s.startswith("-"):
+        if s.startswith("#"):
+            if scoped:
+                in_entries = s.lstrip("#").strip().lower() == "entries"
             continue
-        if "SUPERSEDED" in s or s.startswith("- ~~"):
+        if not in_entries:
+            continue
+        if not (s.startswith("-") or ENTRY_RE.match(s)):
+            continue
+        # Explicit markers beat the strike-through: the burn-down procedure strikes
+        # CONFIRMED entries through too, so testing "~~" first would file every
+        # confirmed check as superseded.
+        if "SUPERSEDED" in s:
             superseded += 1
         elif "CONFIRMED" in s:
             confirmed += 1
+        elif s.startswith("~~") or s.startswith("- ~~"):
+            superseded += 1
         elif "—" in s or "--" in s:
             pending += 1
     return pending, superseded, confirmed
