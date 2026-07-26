@@ -20,6 +20,8 @@ queue means nothing is checking anything.
 
 `264d547` — restart Claude Code, attempt a commit with a bad prefix in a real session — the commit-prefix-guard hook blocks it in-session rather than only when piped by hand
 
+`4bcdce7` — in a Claude Code **VS Code extension** session in this repo (not the terminal CLI), send any message and look directly beneath the reply — a line starting `state | ` showing commit SHA, tree count, `ledger NB/NP/NM`, verify-later, and build status is visible in the extension's chat pane itself, with no terminal panel opened; the turn's matching entry also appears in `~/.claude/turn-state/9e08af5e28d2.log`
+
 ## Rules
 
 **Supersede, never delete.** When a rework invalidates an entry, strike it through, append
