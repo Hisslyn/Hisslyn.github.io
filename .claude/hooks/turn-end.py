@@ -52,10 +52,15 @@ WHAT IT REPORTS
                   existed are deliberately unnumbered — backfilling them would
                   invent an ordering the log cannot support.
 
-                  The title is read from the transcript's last `ai-title` record,
-                  unless a name was attached by hand — see NAMING A SESSION —
-                  in which case the hand-written one wins. The short id is also
-                  the transcript's filename under ~/.claude/projects/<slug>/.
+                  The title is read from the transcript's last `ai-title` record
+                  and from nowhere else. There is deliberately no way to attach a
+                  name by hand: an override was tried and removed, because a
+                  hand-set string renders identically to a real title and so
+                  makes the canary line assert a name that exists nowhere outside
+                  this hook — the exact failure mode the whole file exists to
+                  prevent. When the title is absent, the field shows the ordinal
+                  and the id, which are both true. The short id is also the
+                  transcript's filename under ~/.claude/projects/<slug>/.
     commit        HEAD short SHA. Catches invented commits.
     tree          clean, or number of modified files. Catches "I made the change"
                   when nothing moved, and "only that file changed" when 12 did.
@@ -98,22 +103,6 @@ STATE
     scrolls away; the log does not. Open it as a file to review a whole session's
     real state changes in order, or read it back to prove the hook fired at all.
     README.md in that directory explains every field and what should alarm you.
-
-NAMING A SESSION
-    Claude Code will not write an `ai-title` for a session it declined to title
-    at turn one, so the hook keeps its own override in <hash>.titles.json. This
-    names the session IN THE LOG only — it has no effect on what the VS Code
-    session list shows:
-
-        python3 .claude/hooks/turn-end.py --name S-01 "Session numbering"
-        python3 .claude/hooks/turn-end.py --name S-01 ""      # clear it
-
-    Works on any numbered session, at any time, including long after it ended —
-    the S-number is the handle. A session id or unique id prefix works too. The
-    name lands on every FUTURE log line for that session; lines already written
-    are left alone, because rewriting the log would defeat the point of keeping
-    one. Deliberately not written into the transcript: that file is the
-    conversation's record and the canary does not author entries in it.
 
 TEST IT
     echo '{}' | python3 .claude/hooks/turn-end.py | python3 -m json.tool
@@ -307,8 +296,8 @@ def session_label(payload):
     short = sid[:8] or None
     ordinal = session_ordinal(sid)
 
-    title = manual_title(sid)  # an explicit name beats a generated one
-    path = None if title else transcript_path(payload)
+    path = transcript_path(payload)
+    title = None
     if path:
         try:
             with open(path, "r", encoding="utf-8", errors="replace") as fh:
@@ -427,94 +416,6 @@ def session_ordinal(sid):
         return None
 
 
-def titles_path():
-    return os.path.join(STATE_DIR, _key() + ".titles.json")
-
-
-def manual_title(sid):
-    """A name attached by hand, or None. Beats Claude Code's own title.
-
-    Exists because Claude Code's `ai-title` is a one-shot on the opening prompt
-    and cannot be retried: a session opened with "test" never gets that record
-    written, no matter how substantial it turns out to be. This is the way to
-    give the LOG a name for it, and it is deliberately kept out of the transcript
-    — that file is the conversation's record, and the canary has no business
-    writing into it.
-    """
-    if not sid:
-        return None
-    try:
-        with open(titles_path(), "r", encoding="utf-8") as fh:
-            data = json.load(fh)
-        t = data.get(sid) if isinstance(data, dict) else None
-        return t.strip() if isinstance(t, str) and t.strip() else None
-    except Exception:
-        return None
-
-
-def resolve_session(target):
-    """Map 'S-01', '1', or a session-id prefix onto a full session id."""
-    try:
-        with open(sessions_path(), "r", encoding="utf-8") as fh:
-            ids = json.load(fh).get("ids") or {}
-    except Exception:
-        ids = {}
-
-    m = re.fullmatch(r"[Ss]-?(\d+)", target.strip())
-    if m:
-        want = int(m.group(1))
-        for sid, n in ids.items():
-            if n == want:
-                return sid
-        return None
-
-    hits = [sid for sid in ids if sid.startswith(target)]
-    return hits[0] if len(hits) == 1 else None
-
-
-def name_session(argv):
-    """`--name S-01 "Some name"` — attach a name; empty string clears it."""
-    if len(argv) < 2:
-        print('usage: turn-end.py --name <S-NN|session-id> "<name>"', file=sys.stderr)
-        return 2
-
-    target, title = argv[0], " ".join(argv[1:]).strip()
-    sid = resolve_session(target)
-    if not sid:
-        print("no session matches %r — known sessions:" % target, file=sys.stderr)
-        try:
-            with open(sessions_path(), "r", encoding="utf-8") as fh:
-                for s, n in sorted((json.load(fh).get("ids") or {}).items(), key=lambda kv: kv[1]):
-                    print("  S-%02d  %s" % (n, s), file=sys.stderr)
-        except Exception:
-            print("  (none yet)", file=sys.stderr)
-        return 1
-
-    try:
-        os.makedirs(STATE_DIR, exist_ok=True)
-        try:
-            with open(titles_path(), "r", encoding="utf-8") as fh:
-                data = json.load(fh)
-            if not isinstance(data, dict):
-                data = {}
-        except Exception:
-            data = {}
-
-        if title:
-            data[sid] = title
-        else:
-            data.pop(sid, None)
-
-        with open(titles_path(), "w", encoding="utf-8") as fh:
-            json.dump(data, fh, indent=1)
-    except OSError as exc:
-        print("could not write %s: %s" % (titles_path(), exc), file=sys.stderr)
-        return 1
-
-    print("%s -> %s" % (sid[:8], title or "(name cleared)"))
-    return 0
-
-
 def replies_path():
     return os.path.join(STATE_DIR, _key() + ".replies.json")
 
@@ -611,9 +512,6 @@ def render_delta(prev, snap):
 
 
 def main():
-    if len(sys.argv) > 1 and sys.argv[1] == "--name":
-        sys.exit(name_session(sys.argv[2:]))
-
     payload = hook_input()
     snap = snapshot()
     if not snap:
