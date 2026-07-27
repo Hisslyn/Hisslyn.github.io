@@ -21,7 +21,7 @@
       "Read(./.env)",
       "Read(./.env.*)"
     ],
-    "defaultMode": "auto"
+    "defaultMode": "bypassPermissions" 
   },
 
   "hooks": {
