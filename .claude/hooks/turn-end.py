@@ -26,16 +26,26 @@ WHAT IT REPORTS
                   cannot tell which run a line belongs to.
 
                   The ORDINAL is the part that always exists, and that is the
-                  whole reason it exists. Claude Code generates a session title
+                  whole reason it exists. Claude Code writes an `ai-title` record
                   exactly ONCE, from the opening prompt, and never revisits the
                   decision — a one-word opener ("test", "hi") is declined
-                  outright and that session then stays nameless for its entire
-                  life, no matter what it later turns into. Measured across this
-                  project's transcripts: every session carries at most one
-                  distinct `ai-title` value, re-persisted once per turn, so the
-                  repeated records are copies and not revisions. The hook
-                  therefore assigns its own S-NN on a session's first turn and
-                  reuses it on every turn after.
+                  outright and no `ai-title` record is ever written for that
+                  session. Measured across this project's transcripts: every
+                  session carries at most one distinct `ai-title` value,
+                  re-persisted once per turn, so the repeated records are copies
+                  and not revisions. The hook therefore assigns its own S-NN on
+                  a session's first turn and reuses it on every turn after.
+
+                  NOT the same as "the session has no name anywhere". The VS Code
+                  session list still shows a label for an untitled session, and
+                  it appears to derive one at display time from the first prompt
+                  with real content — skipping an opening "test". That label is
+                  not stored as a title field anywhere; the only trace of it in
+                  the transcript is the `last-prompt` records it is read from.
+                  This hook does not currently use that fallback, so the canary
+                  line and the VS Code session list can disagree on an untitled
+                  session. Reading the first substantial `last-prompt` here would
+                  close that gap if the divergence ever becomes annoying.
 
                   Numbering starts at S-01 and counts sessions the hook observes
                   from that point on. Sessions that ran before the counter
@@ -90,8 +100,10 @@ STATE
     README.md in that directory explains every field and what should alarm you.
 
 NAMING A SESSION
-    Claude Code will not name a session it declined to name at turn one, so the
-    hook keeps its own override in <hash>.titles.json:
+    Claude Code will not write an `ai-title` for a session it declined to title
+    at turn one, so the hook keeps its own override in <hash>.titles.json. This
+    names the session IN THE LOG only — it has no effect on what the VS Code
+    session list shows:
 
         python3 .claude/hooks/turn-end.py --name S-01 "Session numbering"
         python3 .claude/hooks/turn-end.py --name S-01 ""      # clear it
@@ -372,10 +384,13 @@ def session_ordinal(sid):
     """This session's S-number — 1 for the first session the counter ever sees.
 
     Assigned on a session's first turn and stable for every turn after it. It
-    exists because Claude Code's own title does not: the title is generated once
-    from the opening prompt and never reconsidered, so a session opened with a
-    single word ("test", "hi") is nameless permanently. An ordinal is assigned
-    from the session id alone and cannot be declined.
+    exists because Claude Code's `ai-title` record often does not: it is written
+    once from the opening prompt and never reconsidered, so a session opened with
+    a single word ("test", "hi") never gets one at all. (The VS Code session list
+    still shows that session a label, derived at display time from its first
+    substantial prompt — but nothing writes it down, so it is not something a
+    hook can read as a title.) An ordinal is assigned from the session id alone
+    and cannot be declined.
 
     Never reused. `next` is persisted alongside the id map precisely so that
     trimming the map cannot walk the counter backwards onto a number some older
@@ -419,10 +434,10 @@ def titles_path():
 def manual_title(sid):
     """A name attached by hand, or None. Beats Claude Code's own title.
 
-    Exists because Claude Code's titling is a one-shot on the opening prompt and
-    cannot be retried: a session opened with "test" can never earn a name from
-    the harness, no matter how substantial it turns out to be. This is the way
-    to give it one afterwards, and it is deliberately kept out of the transcript
+    Exists because Claude Code's `ai-title` is a one-shot on the opening prompt
+    and cannot be retried: a session opened with "test" never gets that record
+    written, no matter how substantial it turns out to be. This is the way to
+    give the LOG a name for it, and it is deliberately kept out of the transcript
     — that file is the conversation's record, and the canary has no business
     writing into it.
     """
