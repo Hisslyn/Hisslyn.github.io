@@ -24,7 +24,9 @@ queue means nothing is checking anything.
 
 `46a73e9` — start a fresh Claude Code session in this repo and read the injected SessionStart context block — the `VERIFY-LATER:` line reports 5 pending deferred checks (it reported 0 before this commit, against 4 real entries), and the `state | ` line under the first reply reports the same `verify-later 5`
 
-`4d0afed` — start a **new** Claude Code session in this repo, send any message, then run `tail -8 ~/.claude/turn-state/9e08af5e28d2.log` — the new session's entries read `S-02 …` (not `S-01`, and not a bare `6bc5dbd7`-style id), every entry is separated from the next by a blank line, and this session's earlier entries still read `S-01 Canary session numbering (6bc5dbd7)` rather than having been rewritten
+~~`4d0afed` — start a **new** Claude Code session in this repo, send any message, then run `tail -8 ~/.claude/turn-state/9e08af5e28d2.log` — the new session's entries read `S-02 …` (not `S-01`, and not a bare `6bc5dbd7`-style id), every entry is separated from the next by a blank line, and this session's earlier entries still read `S-01 Canary session numbering (6bc5dbd7)` rather than having been rewritten~~ **SUPERSEDED 2026-07-27** — `a235483` removed the hand-set name this entry expects, so its last clause can never pass. The ordinal and separator halves were satisfied in passing: the log already shows S-02 through S-09 from live sessions, blank-line separated. Replaced by the entry below
+
+`a235483` — open `~/.claude/turn-state/9e08af5e28d2.log` and read every entry written after 2026-07-27T10:15(GMT+04) — no entry carries a session name that is not either Claude Code's own generated title or absent entirely; specifically, no line reads `S-01 Canary session numbering`, and untitled sessions render as `S-NN (<id>)` with the id alone
 
 ## Rules
 
