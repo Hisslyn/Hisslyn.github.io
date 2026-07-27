@@ -18,6 +18,34 @@ WHY THIS EXISTS
     "BUILT 33->34" is not.
 
 WHAT IT REPORTS
+    session       Session ordinal, Claude Code's own title when it has one, and
+                  the short id — e.g. `S-07 Canary check (b9eaefa8)`, or
+                  `S-08 (6bc5dbd7)` for a session that never got a title. Not a
+                  correctness check; it is a navigation key. The log interleaves
+                  every session that ever ran in this repo, so without it you
+                  cannot tell which run a line belongs to.
+
+                  The ORDINAL is the part that always exists, and that is the
+                  whole reason it exists. Claude Code generates a session title
+                  exactly ONCE, from the opening prompt, and never revisits the
+                  decision — a one-word opener ("test", "hi") is declined
+                  outright and that session then stays nameless for its entire
+                  life, no matter what it later turns into. Measured across this
+                  project's transcripts: every session carries at most one
+                  distinct `ai-title` value, re-persisted once per turn, so the
+                  repeated records are copies and not revisions. The hook
+                  therefore assigns its own S-NN on a session's first turn and
+                  reuses it on every turn after.
+
+                  Numbering starts at S-01 and counts sessions the hook observes
+                  from that point on. Sessions that ran before the counter
+                  existed are deliberately unnumbered — backfilling them would
+                  invent an ordering the log cannot support.
+
+                  The title is read from the transcript's last `ai-title` record,
+                  unless a name was attached by hand — see NAMING A SESSION —
+                  in which case the hand-written one wins. The short id is also
+                  the transcript's filename under ~/.claude/projects/<slug>/.
     commit        HEAD short SHA. Catches invented commits.
     tree          clean, or number of modified files. Catches "I made the change"
                   when nothing moved, and "only that file changed" when 12 did.
@@ -28,6 +56,9 @@ WHAT IT REPORTS
                   "I rebuilt" when npm run build never ran — the highest-frequency
                   silent failure in this repo, since editing source without
                   rebuilding has no visible effect on the served site.
+    reply         Turn number within this session, counted per session id so it
+                  restarts at #1 on every new run. Catches a skipped turn (the
+                  hook did not fire) and shows how deep a session has gone.
 
     The source->output pairs are parsed out of package.json's minify scripts, which
     CLAUDE.md names as their single source. Nothing is hardcoded here.
@@ -45,13 +76,37 @@ STATE
     site, and a state file inside it would both publish and dirty the working
     tree it is trying to measure.
 
+    Per-session turn counters live beside it in <hash>.replies.json, trimmed to
+    the 50 most recent sessions.
+
+    Session ordinals live in <hash>.sessions.json as {"next": N, "ids": {...}},
+    trimmed to the 200 most recent sessions. `next` is stored rather than derived
+    from the map so the counter stays monotonic across a trim — a reused S-number
+    would defeat the point of having one.
+
     Every turn is also APPENDED to <hash>.log next to it. The transcript line
     scrolls away; the log does not. Open it as a file to review a whole session's
     real state changes in order, or read it back to prove the hook fired at all.
+    README.md in that directory explains every field and what should alarm you.
+
+NAMING A SESSION
+    Claude Code will not name a session it declined to name at turn one, so the
+    hook keeps its own override in <hash>.titles.json:
+
+        python3 .claude/hooks/turn-end.py --name S-01 "Session numbering"
+        python3 .claude/hooks/turn-end.py --name S-01 ""      # clear it
+
+    Works on any numbered session, at any time, including long after it ended —
+    the S-number is the handle. A session id or unique id prefix works too. The
+    name lands on every FUTURE log line for that session; lines already written
+    are left alone, because rewriting the log would defeat the point of keeping
+    one. Deliberately not written into the transcript: that file is the
+    conversation's record and the canary does not author entries in it.
 
 TEST IT
     echo '{}' | python3 .claude/hooks/turn-end.py | python3 -m json.tool
 """
+import datetime
 import hashlib
 import importlib.util
 import json
@@ -63,6 +118,7 @@ import sys
 
 ROOT = os.environ.get("CLAUDE_PROJECT_DIR") or os.getcwd()
 STATE_DIR = os.path.join(os.path.expanduser("~"), ".claude", "turn-state")
+GMT4 = datetime.timezone(datetime.timedelta(hours=4))
 
 
 def sh(*args):
@@ -197,6 +253,79 @@ def snapshot():
     return snap
 
 
+def hook_input():
+    """The Stop payload Claude Code writes to stdin. {} when run by hand."""
+    try:
+        if sys.stdin.isatty():
+            return {}
+        raw = sys.stdin.read()
+        return json.loads(raw) if raw.strip() else {}
+    except Exception:
+        return {}
+
+
+def transcript_path(payload):
+    """Payload's path if given, else reconstruct it from the session id.
+
+    Transcripts live at ~/.claude/projects/<slug>/<session-id>.jsonl, where the
+    slug is the project path with every '/' and '.' turned into '-'.
+    """
+    p = payload.get("transcript_path")
+    if p and os.path.exists(p):
+        return p
+    sid = payload.get("session_id")
+    if not sid:
+        return None
+    slug = re.sub(r"[/.]", "-", ROOT)
+    guess = os.path.join(os.path.expanduser("~"), ".claude", "projects", slug, sid + ".jsonl")
+    return guess if os.path.exists(guess) else None
+
+
+def session_label(payload):
+    """'S-07 Canary check (b9eaefa8)', 'S-08 (6bc5dbd7)', or None.
+
+    Three parts, each omitted when unavailable. The ordinal is the one that
+    always resolves — see session_ordinal for why a title often does not.
+
+    Claude Code emits its `ai-title` record once per turn but only ever with one
+    value per session, so the last one is read purely because it is the cheapest
+    to reach while streaming the file.
+    """
+    sid = payload.get("session_id") or ""
+    short = sid[:8] or None
+    ordinal = session_ordinal(sid)
+
+    title = manual_title(sid)  # an explicit name beats a generated one
+    path = None if title else transcript_path(payload)
+    if path:
+        try:
+            with open(path, "r", encoding="utf-8", errors="replace") as fh:
+                for line in fh:
+                    if '"ai-title"' not in line:  # cheap filter; parsing every line is the cost
+                        continue
+                    try:
+                        obj = json.loads(line)
+                    except ValueError:
+                        continue
+                    if obj.get("type") == "ai-title" and obj.get("aiTitle"):
+                        title = obj["aiTitle"].strip()
+        except OSError:
+            pass
+
+    if title and len(title) > 40:
+        title = title[:39].rstrip() + "…"
+
+    parts = []
+    if ordinal:
+        parts.append("S-%02d" % ordinal)
+    if title:
+        parts.append(title)
+    if short:
+        # bare when it stands alone, parenthesised when it trails something
+        parts.append("(%s)" % short if parts else short)
+    return " ".join(parts) or None
+
+
 def _key():
     return hashlib.md5(ROOT.encode("utf-8")).hexdigest()[:12]
 
@@ -210,16 +339,201 @@ def log_path():
 
 
 def append_log(msg):
-    """Durable record. The transcript line scrolls away; this does not."""
+    """Durable record. The transcript line scrolls away; this does not.
+
+    Stamps are GMT+4 (Azat's wall clock), written with an explicit `(GMT+04)`
+    marker so the log is unambiguous at a glance. The offset is fixed, not the
+    machine's local zone — a run from another timezone still lands on the same
+    timeline as every earlier entry.
+
+    Entries written before 2026-07-27 use an ISO `+04:00` suffix instead; same
+    instant, older spelling.
+
+    Entries are separated by a BLANK LINE. An entry is not always one line — a
+    turn that moved something carries an indented `changed:` line too — so
+    without the separator a wall of state lines and delta lines reads as one
+    undifferentiated block. The blank line is what makes "one turn" visible at a
+    glance. Nothing parses this file, so the separator costs nothing.
+    """
     try:
         os.makedirs(STATE_DIR, exist_ok=True)
-        stamp = subprocess.run(
-            ["date", "-u", "+%Y-%m-%dT%H:%M:%SZ"], capture_output=True, text=True, timeout=5
-        ).stdout.strip()
+        stamp = datetime.datetime.now(GMT4).strftime("%Y-%m-%dT%H:%M:%S(GMT+04)")
         with open(log_path(), "a", encoding="utf-8") as fh:
-            fh.write("%s  %s\n" % (stamp, msg.replace("\n", "\n" + " " * 22)))
+            fh.write("%s  %s\n\n" % (stamp, msg.replace("\n", "\n" + " " * 22)))
     except Exception:
         pass
+
+
+def sessions_path():
+    return os.path.join(STATE_DIR, _key() + ".sessions.json")
+
+
+def session_ordinal(sid):
+    """This session's S-number — 1 for the first session the counter ever sees.
+
+    Assigned on a session's first turn and stable for every turn after it. It
+    exists because Claude Code's own title does not: the title is generated once
+    from the opening prompt and never reconsidered, so a session opened with a
+    single word ("test", "hi") is nameless permanently. An ordinal is assigned
+    from the session id alone and cannot be declined.
+
+    Never reused. `next` is persisted alongside the id map precisely so that
+    trimming the map cannot walk the counter backwards onto a number some older
+    session in the log already answers to.
+    """
+    if not sid:
+        return None
+    try:
+        os.makedirs(STATE_DIR, exist_ok=True)
+        try:
+            with open(sessions_path(), "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+            ids = data.get("ids")
+            nxt = data.get("next")
+            if not isinstance(ids, dict):
+                ids = {}
+            if not isinstance(nxt, int) or nxt < 1:
+                # recover a sane counter from whatever the map still holds
+                nxt = max([v for v in ids.values() if isinstance(v, int)] or [0]) + 1
+        except Exception:
+            ids, nxt = {}, 1
+
+        n = ids.pop(sid, None)
+        if not isinstance(n, int):
+            n, nxt = nxt, nxt + 1
+        ids[sid] = n  # re-inserted last, so the trim drops the stalest ids first
+        for stale in list(ids)[:-200]:
+            del ids[stale]
+
+        with open(sessions_path(), "w", encoding="utf-8") as fh:
+            json.dump({"next": nxt, "ids": ids}, fh)
+        return n
+    except Exception:
+        return None
+
+
+def titles_path():
+    return os.path.join(STATE_DIR, _key() + ".titles.json")
+
+
+def manual_title(sid):
+    """A name attached by hand, or None. Beats Claude Code's own title.
+
+    Exists because Claude Code's titling is a one-shot on the opening prompt and
+    cannot be retried: a session opened with "test" can never earn a name from
+    the harness, no matter how substantial it turns out to be. This is the way
+    to give it one afterwards, and it is deliberately kept out of the transcript
+    — that file is the conversation's record, and the canary has no business
+    writing into it.
+    """
+    if not sid:
+        return None
+    try:
+        with open(titles_path(), "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        t = data.get(sid) if isinstance(data, dict) else None
+        return t.strip() if isinstance(t, str) and t.strip() else None
+    except Exception:
+        return None
+
+
+def resolve_session(target):
+    """Map 'S-01', '1', or a session-id prefix onto a full session id."""
+    try:
+        with open(sessions_path(), "r", encoding="utf-8") as fh:
+            ids = json.load(fh).get("ids") or {}
+    except Exception:
+        ids = {}
+
+    m = re.fullmatch(r"[Ss]-?(\d+)", target.strip())
+    if m:
+        want = int(m.group(1))
+        for sid, n in ids.items():
+            if n == want:
+                return sid
+        return None
+
+    hits = [sid for sid in ids if sid.startswith(target)]
+    return hits[0] if len(hits) == 1 else None
+
+
+def name_session(argv):
+    """`--name S-01 "Some name"` — attach a name; empty string clears it."""
+    if len(argv) < 2:
+        print('usage: turn-end.py --name <S-NN|session-id> "<name>"', file=sys.stderr)
+        return 2
+
+    target, title = argv[0], " ".join(argv[1:]).strip()
+    sid = resolve_session(target)
+    if not sid:
+        print("no session matches %r — known sessions:" % target, file=sys.stderr)
+        try:
+            with open(sessions_path(), "r", encoding="utf-8") as fh:
+                for s, n in sorted((json.load(fh).get("ids") or {}).items(), key=lambda kv: kv[1]):
+                    print("  S-%02d  %s" % (n, s), file=sys.stderr)
+        except Exception:
+            print("  (none yet)", file=sys.stderr)
+        return 1
+
+    try:
+        os.makedirs(STATE_DIR, exist_ok=True)
+        try:
+            with open(titles_path(), "r", encoding="utf-8") as fh:
+                data = json.load(fh)
+            if not isinstance(data, dict):
+                data = {}
+        except Exception:
+            data = {}
+
+        if title:
+            data[sid] = title
+        else:
+            data.pop(sid, None)
+
+        with open(titles_path(), "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=1)
+    except OSError as exc:
+        print("could not write %s: %s" % (titles_path(), exc), file=sys.stderr)
+        return 1
+
+    print("%s -> %s" % (sid[:8], title or "(name cleared)"))
+    return 0
+
+
+def replies_path():
+    return os.path.join(STATE_DIR, _key() + ".replies.json")
+
+
+def bump_reply(sid):
+    """Nth turn of THIS session. None when the session is unknown.
+
+    Kept per-session, not per-project: the counter has to restart when a new
+    session starts, or 'reply #' says nothing about where you are in a run.
+    Re-inserting the live session at the end makes the dict least-recently-used
+    ordered, so the trim drops the stalest sessions rather than the newest.
+    """
+    if not sid:
+        return None
+    try:
+        os.makedirs(STATE_DIR, exist_ok=True)
+        try:
+            with open(replies_path(), "r", encoding="utf-8") as fh:
+                counts = json.load(fh)
+            if not isinstance(counts, dict):
+                counts = {}
+        except Exception:
+            counts = {}
+
+        n = int(counts.pop(sid, 0) or 0) + 1
+        counts[sid] = n
+        for stale in list(counts)[:-50]:  # bound the file; one entry per session
+            del counts[stale]
+
+        with open(replies_path(), "w", encoding="utf-8") as fh:
+            json.dump(counts, fh)
+        return n
+    except Exception:
+        return None
 
 
 def load_previous():
@@ -243,8 +557,11 @@ def tree_str(n):
     return "clean" if n == 0 else "%d file%s" % (n, "" if n == 1 else "s")
 
 
-def render(snap):
+def render(snap, session=None, reply=None):
     bits = []
+    if session:
+        bits.append(session)  # deliberately not in snap: context, not project state,
+                              # so render_delta never reports it as a change
     if "commit" in snap:
         bits.append(snap["commit"])
     if "tree" in snap:
@@ -255,6 +572,8 @@ def render(snap):
         bits.append("verify-later %d" % snap["vl"])
     if "build" in snap:
         bits.append("build " + snap["build"])
+    if reply:
+        bits.append("reply #%d" % reply)
     return "state | " + " | ".join(bits)
 
 
@@ -277,6 +596,10 @@ def render_delta(prev, snap):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "--name":
+        sys.exit(name_session(sys.argv[2:]))
+
+    payload = hook_input()
     snap = snapshot()
     if not snap:
         sys.exit(0)  # no project system here; stay silent
@@ -284,7 +607,7 @@ def main():
     prev = load_previous()
     save(snap)
 
-    msg = render(snap)
+    msg = render(snap, session_label(payload), bump_reply(payload.get("session_id")))
     delta = render_delta(prev, snap)
     if delta:
         msg += "\n" + delta
