@@ -24,6 +24,8 @@ queue means nothing is checking anything.
 
 `46a73e9` — start a fresh Claude Code session in this repo and read the injected SessionStart context block — the `VERIFY-LATER:` line reports 5 pending deferred checks (it reported 0 before this commit, against 4 real entries), and the `state | ` line under the first reply reports the same `verify-later 5`
 
+`4d0afed` — start a **new** Claude Code session in this repo, send any message, then run `tail -8 ~/.claude/turn-state/9e08af5e28d2.log` — the new session's entries read `S-02 …` (not `S-01`, and not a bare `6bc5dbd7`-style id), every entry is separated from the next by a blank line, and this session's earlier entries still read `S-01 Canary session numbering (6bc5dbd7)` rather than having been rewritten
+
 ## Rules
 
 **Supersede, never delete.** When a rework invalidates an entry, strike it through, append
