@@ -17,6 +17,11 @@ WHY THIS EXISTS
     It reports DELTAS, not just state. A number sitting there is easy to ignore;
     "BUILT 33->34" is not.
 
+    Commits are reported SEPARATELY from the rest of the deltas, on their own
+    `commits:` line that names every commit in the turn. A turn is exactly one
+    canary line but can be any number of commits, so folding them into a single
+    `commit a->b` pair silently drops everything in between.
+
 WHAT IT REPORTS
     session       Session ordinal, Claude Code's own title when it has one, and
                   the short id — e.g. `S-07 Canary check (b9eaefa8)`, or
@@ -351,10 +356,11 @@ def append_log(msg):
     instant, older spelling.
 
     Entries are separated by a BLANK LINE. An entry is not always one line — a
-    turn that moved something carries an indented `changed:` line too — so
-    without the separator a wall of state lines and delta lines reads as one
-    undifferentiated block. The blank line is what makes "one turn" visible at a
-    glance. Nothing parses this file, so the separator costs nothing.
+    turn that moved something carries indented `commits:` and `changed:` lines
+    too, and the commit list is one line per commit — so without the separator a
+    wall of state lines and delta lines reads as one undifferentiated block. The
+    blank line is what makes "one turn" visible at a glance. Nothing parses this
+    file, so the separator costs nothing.
     """
     try:
         os.makedirs(STATE_DIR, exist_ok=True)
@@ -493,11 +499,47 @@ def render(snap, session=None, reply=None):
     return "state | " + " | ".join(bits)
 
 
-def render_delta(prev, snap):
+COMMIT_CAP = 10  # a pull can drag in hundreds; the log is for reading, not archiving
+COMMIT_WIDTH = 60
+
+
+def render_commits(prev, snap):
+    """The turn's commits, oldest first, one per line — or None.
+
+    A turn is one canary line but can be any number of commits, so neither the
+    SHA on the state line nor a `commit a->b` pair says what actually landed.
+    This walks the real range instead.
+
+    None when the range cannot be walked or comes back empty — an amend, reset,
+    or rebase leaves the previous SHA unreachable from HEAD, and there is no
+    honest list to print. The caller falls back to the `commit a->b` form, which
+    is still true: the SHA moved, and that is the claim worth checking.
+    """
+    if not prev:
+        return None
+    prev_sha, sha = prev.get("commit"), snap.get("commit")
+    if not prev_sha or not sha or prev_sha == sha:
+        return None
+
+    out = sh("git", "log", "--reverse", "--format=%h %s", "%s..%s" % (prev_sha, sha))
+    rows = [l.strip() for l in (out or "").splitlines() if l.strip()]
+    if not rows:
+        return None
+
+    dropped = len(rows) - COMMIT_CAP
+    if dropped > 0:
+        rows = rows[:COMMIT_CAP] + ["… +%d more" % dropped]
+    rows = [r if len(r) <= COMMIT_WIDTH else r[: COMMIT_WIDTH - 1].rstrip() + "…" for r in rows]
+
+    pad = "\n" + " " * len("  commits: ")  # continuations align under the first SHA
+    return "  commits: " + pad.join(rows)
+
+
+def render_delta(prev, snap, skip_commit=False):
     if not prev:
         return None
     d = []
-    if prev.get("commit") != snap.get("commit") and "commit" in snap:
+    if not skip_commit and prev.get("commit") != snap.get("commit") and "commit" in snap:
         d.append("commit %s->%s" % (prev.get("commit", "?"), snap["commit"]))
     if prev.get("tree") != snap.get("tree") and "tree" in snap:
         d.append("tree %s->%s" % (tree_str(prev.get("tree", 0)), tree_str(snap["tree"])))
@@ -521,9 +563,11 @@ def main():
     save(snap)
 
     msg = render(snap, session_label(payload), bump_reply(payload.get("session_id")))
-    delta = render_delta(prev, snap)
-    if delta:
-        msg += "\n" + delta
+    commits = render_commits(prev, snap)
+    delta = render_delta(prev, snap, skip_commit=commits is not None)
+    for extra in (commits, delta):
+        if extra:
+            msg += "\n" + extra
 
     append_log(msg)
     print(json.dumps({"systemMessage": msg, "suppressOutput": True}))
