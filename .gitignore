@@ -26,6 +26,33 @@ src/js/lang.js
 __pycache__/
 *.pyc
 
+# --- added 2026-07-28 (local tool/editor noise) ---
+# Per-machine Claude Code state that carries no project meaning. Untracked today;
+# these rules stop a `git add -A` from publishing them. settings.local.json is
+# already covered by the machine's global core.excludesFile — repeated here so the
+# rule travels with the repo instead of living only on one laptop.
+.claude/settings.local.json
+.claude/*.local.json
+.claude/todos/
+.claude/shell-snapshots/
+.claude/statsig/
+.claude/history.jsonl
+
+# Editor and OS byproducts. .DS_Store above already matches at any depth.
+.vscode/
+.idea/
+*.swp
+*~
+Thumbs.db
+
 # NOT ignored, deliberately: references/ holds specifications and docs/ holds the
 # doc tree. Both are version-controlled artifacts. Gitignoring references/ is how
 # the source project lost its own specifications (LESSONS.md §11).
+#
+# Also NOT ignored, deliberately: CLAUDE.md, LEDGER.md, VERIFY-LATER.md,
+# loop-prompts/, and .claude/commands/ + .claude/hooks/. These are the project's
+# governing documents and its enforcement scripts, not scratch notes — they are
+# tracked on purpose. They ARE publicly served like everything else here, which is
+# why the publication-boundary rule in CLAUDE.md forbids secrets inside them. If
+# they should stop being served, the fix is structural (publish from a docs/ folder
+# or a gh-pages branch), never a gitignore rule.
