@@ -6,8 +6,8 @@ hash no longer matches what was recorded when the doc was written. Exit 1 if any
 drifted, so it can gate a loop step.
 
 WHY THIS EXISTS
-    LESSONS.md §10: the source project documented ~130 files into a manifest that
-    made staleness *detectable* -- and then nothing ever detected it. Some per-file
+    The project this repo was forked from documented ~130 files into a manifest
+    that made staleness *detectable* -- and then nothing ever detected it. Some per-file
     docs silently described an older version of their file for months. The manifest
     without this script is a promise nobody keeps. It is the top item in that
     project's own list of what it should have built.

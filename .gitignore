@@ -47,7 +47,7 @@ Thumbs.db
 
 # NOT ignored, deliberately: references/ holds specifications and docs/ holds the
 # doc tree. Both are version-controlled artifacts. Gitignoring references/ is how
-# the source project lost its own specifications (LESSONS.md §11).
+# the project this repo was forked from lost its own specifications.
 #
 # Also NOT ignored, deliberately: CLAUDE.md, LEDGER.md, VERIFY-LATER.md,
 # loop-prompts/, and .claude/commands/ + .claude/hooks/. These are the project's
