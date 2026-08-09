@@ -39,6 +39,7 @@ USAGE
 """
 import os
 import re
+import subprocess
 import sys
 import urllib.parse
 
@@ -46,6 +47,28 @@ SKIP_DIRS = {"node_modules", ".git"}
 SKIP_SCHEMES = ("#", "http://", "https://", "//", "data:", "mailto:", "javascript:", "tel:")
 ATTR = re.compile(r'(?:href|src)\s*=\s*"([^"]+)"')
 CSP = 'http-equiv="Content-Security-Policy"'
+
+
+def tracked_html(root):
+    """The HTML files git tracks -- which is exactly the set GitHub Pages serves.
+
+    Walking the filesystem used to be equivalent, and stopped being so once parts of
+    the tree became gitignored-and-untracked. A page left on disk but out of the repo
+    is not deployed, so counting it produces a permanently red baseline for something
+    no visitor can reach -- and a permanently red baseline is an ignored baseline.
+
+    Returns None if git cannot answer (no git, no repo, a tarball export), so the
+    caller can fall back to the filesystem walk.
+    """
+    try:
+        proc = subprocess.run(
+            ["git", "-C", root, "ls-files", "-z", "--", "*.html"],
+            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, check=True,
+        )
+    except (OSError, subprocess.CalledProcessError):
+        return None
+    names = [n for n in proc.stdout.decode("utf-8").split("\0") if n]
+    return sorted(os.path.join(root, n) for n in names) or None
 
 
 def html_files(root):
@@ -60,7 +83,7 @@ def html_files(root):
 
 def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    pages = html_files(root)
+    pages = tracked_html(root) or html_files(root)
 
     broken = []
     no_csp = []

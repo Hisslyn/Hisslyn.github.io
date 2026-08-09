@@ -63,6 +63,12 @@ Thumbs.db
 loop-prompts/
 references/
 
+# The original Three.js prototype. Served and unlinked since the site was built,
+# and the sole page with no CSP meta — the one standing exception to invariant I4.
+# It is a prototype, not part of the site, so it leaves the repo rather than being
+# retrofitted with a policy. Still on disk; open it from the filesystem.
+side kick/
+
 # Every markdown file. Nothing the site serves is markdown — every .md here is
 # commentary for a reader, not content for a browser. This one rule subsumes the
 # process documents (CLAUDE.md at all three levels, LEDGER.md, VERIFY-LATER.md)
