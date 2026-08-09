@@ -65,11 +65,20 @@ references/
 
 # Every markdown file. Nothing the site serves is markdown — every .md here is
 # commentary for a reader, not content for a browser. This one rule subsumes the
-# process documents (CLAUDE.md at all three levels, LEDGER.md, VERIFY-LATER.md),
-# the whole docs/ documentation tree, and README.md. The repo therefore contains
-# no markdown at all, and GitHub shows no project description on the repo page.
+# process documents (CLAUDE.md at all three levels, LEDGER.md, VERIFY-LATER.md)
+# and the whole docs/ documentation tree.
 *.md
 
-# Still tracked, deliberately: tools/ (repo tooling package.json invokes),
-# docs/_manifest.json (not markdown; the docs generator's resumability state),
-# and everything a browser needs.
+# Except the root README — it is the repo's front page on GitHub, not commentary,
+# and without it the repo page shows no description at all. Anchored to the root
+# so it re-includes only this one file; references/README.md stays out, because a
+# negation cannot re-include a file inside an already-excluded directory.
+!/README.md
+
+# The docs generator's resumability state. It is not markdown, so *.md never
+# covered it, but it indexes only files that are now untracked — a listing of
+# hashes for documents no clone will have. It belongs with them, not in the repo.
+docs/_manifest.json
+
+# Still tracked, deliberately: tools/ (repo tooling package.json invokes) and
+# everything a browser needs.
