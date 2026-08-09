@@ -4,11 +4,6 @@ node_modules/
 .env
 scripts/
 perfect_folder_looks.txt
-src/css/styles.css
-src/css/fonts.css
-src/css/fonts.min.css
-src/css/components/translate.css
-src/js/lang.js
 
 # --- added 2026-07-26 (process-system scaffold) ---
 # Secret hygiene. Every file in this repo is publicly served, so a leaked key is a
