@@ -12,9 +12,14 @@ src/js/lang.js
 
 # --- added 2026-07-26 (process-system scaffold) ---
 # Secret hygiene. Every file in this repo is publicly served, so a leaked key is a
-# published key. .env was already covered; these extend it. Nothing above this line
-# was changed — see the `reproducible-build` and `gitignore-hygiene` LEDGER.md rows
-# for the two pre-existing defects in the rules above, which need their own diffs.
+# published key. .env was already covered; these extend it.
+#
+# The `scripts/` rule above finally matches reality as of 2026-08-09: its one tracked
+# file, scripts/data_collector.py, predated the rule and so stayed tracked and served
+# while the rule implied otherwise. It is now untracked (LEDGER.md gitignore-hygiene,
+# D-5). Two defects in the rules above still stand and need their own diffs: the
+# gitignored build sources (`reproducible-build`) and the `perfect_folder_looks.txt`
+# rule for a file that exists nowhere (`gitignore-hygiene`, D-4).
 .env.*
 !.env.example
 *.pem
