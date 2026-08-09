@@ -45,14 +45,31 @@ __pycache__/
 *~
 Thumbs.db
 
-# NOT ignored, deliberately: references/ holds specifications and docs/ holds the
-# doc tree. Both are version-controlled artifacts. Gitignoring references/ is how
-# the project this repo was forked from lost its own specifications.
+# --- added 2026-08-09 (process system leaves the served tree) ---
+# Every file in this repo is publicly served, so anything tracked here is published.
+# The prompting/harness layer and the process documents are not part of the site and
+# are no longer tracked: they were untracked with `git rm -r --cached` in the same
+# commit that added these rules, which is what actually removes them from the served
+# tree. A .gitignore line alone would not have — it does not affect tracked files.
 #
-# Also NOT ignored, deliberately: CLAUDE.md, LEDGER.md, VERIFY-LATER.md,
-# loop-prompts/, and .claude/commands/ + .claude/hooks/. These are the project's
-# governing documents and its enforcement scripts, not scratch notes — they are
-# tracked on purpose. They ARE publicly served like everything else here, which is
-# why the publication-boundary rule in CLAUDE.md forbids secrets inside them. If
-# they should stop being served, the fix is structural (publish from a docs/ folder
-# or a gh-pages branch), never a gitignore rule.
+# These files still exist on disk and still work; they are simply machine-local from
+# here on. Older revisions remain reachable in git history up to that commit, but no
+# future edit to them is versioned. That cost was weighed and accepted deliberately.
+# If they ever need to be both unserved and versioned, the fix is structural — serve
+# the site from a gh-pages branch or a docs/ folder — not a change to these rules.
+
+# Prompting and harness machinery.
+.claude/
+loop-prompts/
+
+# Process documents — the governing docs an AI session reads, not site content.
+CLAUDE.md
+src/pages/CLAUDE.md
+universe/CLAUDE.md
+LEDGER.md
+VERIFY-LATER.md
+references/
+
+# Still tracked, deliberately: docs/ (the per-file documentation tree describing the
+# actual source), tools/ (repo tooling that package.json invokes), and everything a
+# browser needs. Those describe or build the site itself and belong in it.
