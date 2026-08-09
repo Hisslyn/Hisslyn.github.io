@@ -3,7 +3,6 @@
 node_modules/
 .env
 scripts/
-perfect_folder_looks.txt
 
 # --- added 2026-07-26 (process-system scaffold) ---
 # Secret hygiene. Every file in this repo is publicly served, so a leaked key is a
@@ -12,9 +11,9 @@ perfect_folder_looks.txt
 # The `scripts/` rule above finally matches reality as of 2026-08-09: its one tracked
 # file, scripts/data_collector.py, predated the rule and so stayed tracked and served
 # while the rule implied otherwise. It is now untracked (LEDGER.md gitignore-hygiene,
-# D-5). Two defects in the rules above still stand and need their own diffs: the
-# gitignored build sources (`reproducible-build`) and the `perfect_folder_looks.txt`
-# rule for a file that exists nowhere (`gitignore-hygiene`, D-4).
+# D-5). The two other defects that stood in the rules above are also closed: the
+# gitignored build sources are tracked (`reproducible-build`, I6) and the rule for
+# `perfect_folder_looks.txt` — a file that exists nowhere — is deleted (D-4).
 .env.*
 !.env.example
 *.pem
