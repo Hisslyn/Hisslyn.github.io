@@ -86,5 +86,10 @@ side kick/
 # hashes for documents no clone will have. It belongs with them, not in the repo.
 docs/_manifest.json
 
-# Still tracked, deliberately: tools/ (repo tooling package.json invokes) and
-# everything a browser needs.
+# The docs-staleness tool. It reads docs/_manifest.json and the docs/ tree, none of
+# which are in the repo, so shipping it here meant shipping a command with nothing to
+# operate on. It stays on disk and still runs locally, alongside what it reads.
+tools/docs-stale.py
+
+# Still tracked, deliberately: the rest of tools/ (repo tooling package.json invokes)
+# and everything a browser needs.
