@@ -19,7 +19,8 @@ WHAT IT CHECKS
      <meta http-equiv="Content-Security-Policy"> because there is no server here to
      set a header. The invariant guard cannot enforce this: it is a forbidden-pattern
      engine with no "required pattern" concept, so a positive assertion has to live
-     in a script. See CLAUDE.md, Hard invariants.
+     in a script. See CLAUDE.md, Hard invariants -- kept outside this repo with the
+     rest of the process documents, so it will not be present in a fresh clone.
 
   3. .nojekyll presence (hard invariant I5). Also unenforceable by hook: the guard
      fires on Edit/Write/MultiEdit and never sees an `rm`.
@@ -29,7 +30,8 @@ WHAT IT DELIBERATELY DOES NOT CHECK
   Build reproducibility (regenerating each .min.* and byte-comparing it against the
   committed twin) would enforce I1 by content rather than by hook. It is not here
   because four of its inputs are currently gitignored, so it cannot run from a fresh
-  clone -- see the `reproducible-build` row in LEDGER.md. Add it once that is fixed.
+  clone. Tracked as the `reproducible-build` row in LEDGER.md, which -- like CLAUDE.md
+  -- is kept outside this repo. Add this check once that is fixed.
 
 USAGE
     python3 tools/check-site.py      # or: npm run check:site
