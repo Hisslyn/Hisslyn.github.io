@@ -61,15 +61,15 @@ Thumbs.db
 # Prompting and harness machinery.
 .claude/
 loop-prompts/
-
-# Process documents — the governing docs an AI session reads, not site content.
-CLAUDE.md
-src/pages/CLAUDE.md
-universe/CLAUDE.md
-LEDGER.md
-VERIFY-LATER.md
 references/
 
-# Still tracked, deliberately: docs/ (the per-file documentation tree describing the
-# actual source), tools/ (repo tooling that package.json invokes), and everything a
-# browser needs. Those describe or build the site itself and belong in it.
+# Every markdown file. Nothing the site serves is markdown — every .md here is
+# commentary for a reader, not content for a browser. This one rule subsumes the
+# process documents (CLAUDE.md at all three levels, LEDGER.md, VERIFY-LATER.md),
+# the whole docs/ documentation tree, and README.md. The repo therefore contains
+# no markdown at all, and GitHub shows no project description on the repo page.
+*.md
+
+# Still tracked, deliberately: tools/ (repo tooling package.json invokes),
+# docs/_manifest.json (not markdown; the docs generator's resumability state),
+# and everything a browser needs.
